@@ -301,21 +301,19 @@ class GSM_GitHub_API {
 			$default_branch = $this->get_default_branch( $owner, $repo );
 			if ( ! is_wp_error( $default_branch ) ) {
 				$branch_version = $this->get_plugin_version_from_branch( $owner, $repo, $default_branch );
-				if ( ! is_wp_error( $branch_version ) ) {
-					$releases[] = array(
-						'id'           => 'branch_' . $default_branch,
-						'tag_name'     => $branch_version,
-						'name'         => sprintf( __( 'Ramo Principal (%s)', 'github-sync-manager' ), $default_branch ),
-						'body'         => __( 'Instalado diretamente da branch principal do GitHub (sem releases).', 'github-sync-manager' ),
-						'published_at' => current_time( 'mysql' ),
-						'zipball_url'  => sprintf( '%s/repos/%s/%s/zipball/%s', self::API_URL, rawurlencode( $owner ), rawurlencode( $repo ), rawurlencode( $default_branch ) ),
-						'assets'       => array(),
-						'is_branch'    => true,
-						'branch_name'  => $default_branch,
-					);
-				} else {
-					return $branch_version;
-				}
+				$version = ! is_wp_error( $branch_version ) ? $branch_version : '0.0.0';
+
+				$releases[] = array(
+					'id'           => 'branch_' . $default_branch,
+					'tag_name'     => $version,
+					'name'         => sprintf( __( 'Ramo Principal (%s)', 'github-sync-manager' ), $default_branch ),
+					'body'         => __( 'Instalado diretamente da branch principal do GitHub (sem releases).', 'github-sync-manager' ),
+					'published_at' => current_time( 'mysql' ),
+					'zipball_url'  => sprintf( '%s/repos/%s/%s/zipball/%s', self::API_URL, rawurlencode( $owner ), rawurlencode( $repo ), rawurlencode( $default_branch ) ),
+					'assets'       => array(),
+					'is_branch'    => true,
+					'branch_name'  => $default_branch,
+				);
 			} else {
 				return $default_branch;
 			}
