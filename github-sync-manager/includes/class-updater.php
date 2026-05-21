@@ -56,7 +56,9 @@ class GSM_Updater {
 	}
 
 	/**
-	 * Hooks into site_transient_update_plugins to inject available updates.
+	 * Checks for available updates and updates managed plugin statuses.
+	 * NOTE: This method is no longer hooked into WordPress update transients
+	 * to comply with WordPress.org plugin guidelines.
 	 *
 	 * @param object $transient Update transient object.
 	 * @return object Modified transient object.

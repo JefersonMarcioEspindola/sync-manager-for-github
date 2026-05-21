@@ -42,8 +42,8 @@ class GSM_Admin {
 	 */
 	public static function add_admin_menu() {
 		add_menu_page(
-			__( 'GitHub Sync', 'github-sync-manager' ),
-			__( 'GitHub Sync', 'github-sync-manager' ),
+			__( 'Sync Manager', 'github-sync-manager' ),
+			__( 'Sync Manager', 'github-sync-manager' ),
 			'manage_options',
 			'github-sync-manager',
 			array( __CLASS__, 'render_admin_page' ),
@@ -166,7 +166,7 @@ class GSM_Admin {
 			<div class="gsm-header-panel">
 				<h1 class="gsm-title">
 					<i data-lucide="github" class="gsm-icon"></i>
-					<?php esc_html_e( 'GitHub Sync Manager', 'github-sync-manager' ); ?>
+					<?php esc_html_e( 'Sync Manager for GitHub', 'github-sync-manager' ); ?>
 				</h1>
 				
 				<?php if ( $token_exists && is_array( $connected_user ) ) : ?>
@@ -273,7 +273,7 @@ class GSM_Admin {
 					<!-- Tab content: Settings/Config -->
 					<div id="gsm-tab-config" class="gsm-tab-content">
 						<div class="gsm-card gsm-settings-card">
-							<h2><?php esc_html_e( 'Configurações do GitHub Sync', 'github-sync-manager' ); ?></h2>
+							<h2><?php esc_html_e( 'Configurações do Sync Manager', 'github-sync-manager' ); ?></h2>
 							<table class="form-table" role="presentation">
 								<tbody>
 									<tr>
@@ -304,7 +304,7 @@ class GSM_Admin {
 												<option value="en_US" <?php selected( $selected_locale, 'en_US' ); ?>><?php esc_html_e( 'English (US)', 'github-sync-manager' ); ?></option>
 												<option value="es_ES" <?php selected( $selected_locale, 'es_ES' ); ?>><?php esc_html_e( 'Español', 'github-sync-manager' ); ?></option>
 											</select>
-											<p class="description"><?php esc_html_e( 'Selecione o idioma da interface do GitHub Sync Manager.', 'github-sync-manager' ); ?></p>
+											<p class="description"><?php esc_html_e( 'Selecione o idioma da interface do Sync Manager for GitHub.', 'github-sync-manager' ); ?></p>
 										</td>
 									</tr>
 									<tr>
@@ -1293,8 +1293,8 @@ class GSM_Admin {
 			}
 		}
 		if ( ! $has_default_branch ) {
-			/* translators: %s: branch name */
 			$sources[] = array(
+				/* translators: %s: branch name */
 				'name'        => sprintf( __( 'Ramo: %s', 'github-sync-manager' ), $default_branch ),
 				'ref'         => $default_branch,
 				'is_branch'   => true,

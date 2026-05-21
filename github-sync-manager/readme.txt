@@ -1,8 +1,8 @@
-=== GitHub Sync Manager ===
+=== Sync Manager for GitHub ===
 Contributors: JefersonMarcioEspindola
 Tags: github, plugin updater, private plugins, github releases, self-hosted
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 7.0
 Stable tag: 0.0.16
 Requires PHP: 7.4
 License: GPLv2 or later
