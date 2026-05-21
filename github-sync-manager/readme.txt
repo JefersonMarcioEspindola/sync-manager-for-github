@@ -1,82 +1,151 @@
 === GitHub Sync Manager ===
 Contributors: JefersonMarcioEspindola
-Tags: github, sync, updates, plugin manager, private plugins, release updates
+Tags: github, plugin updater, private plugins, github releases, self-hosted
 Requires at least: 5.8
-Tested up to: 6.5
-Stable tag: 0.0.9
-Requires PHP: 7.2
+Tested up to: 6.8
+Stable tag: 0.0.15
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Permite ao administrador do site instalar e manter atualizados outros plugins WordPress hospedados em repositórios do GitHub, públicos ou privados.
+Install and keep WordPress plugins updated directly from GitHub releases — supports both public and private repositories.
 
 == Description ==
 
-O **GitHub Sync Manager** é um plugin desenvolvido para simplificar a distribuição, instalação e atualização de outros plugins hospedados em repositórios do GitHub (públicos ou privados), utilizando as **Releases** do repositório como a única fonte de verdade (*Source of Truth*).
+**GitHub Sync Manager** lets you manage WordPress plugins hosted on GitHub repositories. Instead of manually downloading ZIP files and re-uploading them, this plugin connects to the GitHub API and handles everything for you — including detecting new releases and triggering updates in one click.
 
-O caso de uso central é a distribuição ágil de plugins sob medida ou em desenvolvimento ativo: o desenvolvedor cria e publica uma nova release no GitHub, e o WordPress automaticamente identifica e exibe a atualização disponível na tela padrão de Plugins, exatamente como ocorre com plugins hospedados no diretório oficial do WordPress.org.
+**Key Features:**
+
+* Connect your GitHub account via a Personal Access Token (PAT)
+* Browse your GitHub repositories and install plugins directly from releases or branches
+* Automatic background checks for new releases (via WP-Cron, twice daily)
+* Manual "Check for Updates" button to trigger an immediate scan
+* Force reinstall any plugin at any time, regardless of version comparison
+* Supports public and private GitHub repositories
+* Supports subfolder-based plugins (where the plugin lives inside a subdirectory of the repository)
+* Activity log for every install, update, and check
+* Token encrypted at rest using AES-256-GCM with keys derived from your `wp-config.php`
+
+**How it works:**
+
+1. Connect your GitHub account with a PAT (fine-grained or classic token)
+2. Browse your repositories in the "Add Plugin" tab
+3. Install any plugin — the plugin reads the release ZIP or branch archive from GitHub and installs it natively via WordPress's own upgrade infrastructure
+4. From that point on, every new release published on GitHub will trigger an update notification in WordPress
+
+**Use case:**
+
+This plugin is designed for developers distributing custom or client plugins via GitHub. Once set up, a new GitHub release automatically makes the update available to all WordPress sites running the plugin — no manual ZIP uploads needed.
 
 == Installation ==
 
-1. Faça o download da última release em ZIP do plugin.
-2. No painel do seu WordPress, navegue até **Plugins > Adicionar Novo > Enviar Plugin** e faça o upload do arquivo ZIP.
-3. Ative o plugin.
-4. Acesse a nova página **GitHub Sync** no menu lateral do painel do WordPress.
-5. Insira um Personal Access Token (PAT) do GitHub para conectar a sua conta.
+1. Download the latest release ZIP from the plugin's GitHub page.
+2. In your WordPress dashboard, go to **Plugins > Add New > Upload Plugin** and upload the ZIP file.
+3. Activate the plugin.
+4. Go to the new **GitHub Sync** menu item in your WordPress admin sidebar.
+5. Enter a GitHub Personal Access Token (PAT) to connect your account.
 
 == Frequently Asked Questions ==
 
-= O plugin é compatível com repositórios privados? =
-Sim! Ao usar um Personal Access Token com escopo de permissão adequado, o plugin consegue se conectar e baixar atualizações de repositórios privados com total segurança.
+= Does it work with private repositories? =
+Yes. When you provide a Personal Access Token with the appropriate scopes (`repo` for classic tokens, or repository read access for fine-grained tokens), the plugin can access and install from private repositories.
 
-= Como é feita a comparação de versões? =
-O sistema realiza uma comparação utilizando Semantic Versioning (SemVer) entre a tag da última release publicada no GitHub e a versão declarada no cabeçalho do arquivo principal do plugin instalado localmente.
+= How are versions compared? =
+The plugin compares the tag name of the latest GitHub release (e.g. `v1.2.3`) against the `Version` header declared in the plugin's main PHP file using PHP's `version_compare()`.
 
-= O meu token de acesso (PAT) está seguro? =
-Absolutamente. O token é criptografado usando o algoritmo autenticado AES-256-GCM antes de ser salvo no banco de dados. A chave criptográfica é derivada de forma única com base em chaves privadas (`AUTH_KEY`/`SECURE_AUTH_KEY`) do seu arquivo `wp-config.php`, garantindo proteção de nível militar.
+= Is my GitHub token stored securely? =
+Yes. The token is encrypted using AES-256-GCM with a key derived from your site's `AUTH_KEY` and `SECURE_AUTH_KEY` constants defined in `wp-config.php`. It is never stored in plain text.
+
+= What if my plugin is inside a subfolder of the repository? =
+Supported. When installing, you can select the subfolder where the plugin's main PHP file lives. The plugin will extract only that subfolder during installation.
+
+= Can I install from a branch instead of a release? =
+Yes. If a repository has no releases, or you prefer to track a specific branch, you can select a branch as the installation source.
+
+= Does this plugin send any data externally? =
+The only external communication is with the GitHub API (`api.github.com`) using your own access token. No data is sent to any other service.
+
+== Screenshots ==
+
+1. Main dashboard showing managed plugins as cards with version info and last-check date.
+2. "Add Plugin" tab with repository browser filtered to WordPress-related projects.
+3. Activity log showing install and update history.
 
 == Changelog ==
 
+= 0.0.15 =
+* Bundled Lucide icon library locally to comply with WordPress.org guidelines (no external CDN).
+
+= 0.0.14 =
+* Replaced all Dashicons with Lucide icons for a cleaner, modern UI.
+* Added animated chevron transitions for dropdown and toggle elements.
+
+= 0.0.13 =
+* Plugin cards now stack full-width instead of a grid layout.
+* Replaced activity dots with "Last checked" date meta line.
+* Changed button icons for better semantics (search, refresh-cw).
+
+= 0.0.12 =
+* Replaced Plugins table with responsive card grid.
+* Added per-card activity dots from real log data (green = success, red = error).
+* Fixed button icon vertical alignment and color inheritance.
+* Fixed logs page double border and date column wrapping.
+* Public visibility badge now uses brand blue color.
+* Removed PHP language badge from repository cards.
+
+= 0.0.11 =
+* Fixed fatal error: `Automatic_Upgrader_Skin::get_errors()` undefined in PHP 8.3.
+* Fixed `preg_match(): Unknown modifier '*'` from bad regex delimiters in version detection.
+
+= 0.0.10 =
+* Fixed dropdown folder picker flickering and scroll issue in the install modal.
+* Fixed plugin installation failing with filesystem permissions error in AJAX context.
+
 = 0.0.9 =
-* Seletor de pasta base substituído por um componente visual personalizado com hierarquia de pastas em árvore, linhas de conexão e indicador de seleção.
-* Corrigido alinhamento vertical do texto e emoji dentro do campo de seleção de origem.
-* Aplicação completa da nova paleta de cores da marca ao painel administrativo.
+* Replaced folder selector with a custom visual tree component with hierarchy lines and selection indicator.
+* Fixed vertical alignment of text and emoji inside the source selector field.
+* Applied full brand color palette to the admin dashboard.
 
 = 0.0.8 =
-* Aplicada nova paleta de cores oficial ao painel administrativo: azul #2859FF (principal), #557CFF (hover), tema claro com fundo #FFFFFF, superfícies #EEEFF1 e bordas #C8C9D3.
-* Corrigido alinhamento central do botão X (fechar) no modal de instalação.
-* Botão de instalar agora utiliza a cor primária da marca com efeito hover e sombra suave.
+* Applied official brand color palette to the admin panel.
+* Fixed alignment of the modal close button.
+* Install button now uses primary brand color with hover and shadow effects.
 
 = 0.0.7 =
-* Corrigido erro de verificação impedindo a abertura do modal de instalação para repositórios sem releases.
-* Implementado fallback automático para versão 0.0.0 na branch padrão em caso de falha de detecção do plugin, permitindo a instalação e seleção manual de subpasta.
+* Fixed verification error blocking the install modal for repositories without releases.
+* Implemented automatic fallback to version 0.0.0 on the default branch when plugin detection fails.
 
 = 0.0.6 =
-* Adicionado pop-up (modal) de verificação e instalação de plugins.
-* Implementada a seleção manual de ramo/versão (ref) e de pasta base (subfolder) no repositório.
-* Adicionado badge indicador de subpastas configuradas na listagem de plugins gerenciados.
-* Adicionadas novas traduções em português, espanhol e inglês.
+* Added verification and installation modal.
+* Implemented manual branch/version (ref) and subfolder selection.
+* Added subfolder badge on the managed plugins list.
+* Added translations in Portuguese, Spanish, and English.
 
 = 0.0.5 =
-* Corrigido suporte a caminhos com espaços e caracteres especiais utilizando codificação rawurlencode compatível com a API do GitHub.
-* Corrigido bug de ordenação instável com usort no PHP 8+.
-* Aumentado o limite de subpastas varridas de 3 para 5 diretórios.
-* Adicionado logs detalhados de erros de API na aba Histórico de Logs.
+* Fixed support for paths with spaces and special characters using `rawurlencode`.
+* Fixed unstable sort with `usort` on PHP 8+.
+* Increased scanned subfolder limit from 3 to 5 directories.
+* Added detailed API error logs to the activity log tab.
 
 = 0.0.4 =
-* Adicionado suporte a instalação por branch como fallback quando não há releases publicadas no GitHub.
-* Adicionado indicador visual de branch nos cards de plugins gerenciados.
-* Adicionado botão para copiar prompt estruturado de IA para auxiliar na criação de releases no GitHub.
+* Added branch-based installation as fallback when no GitHub releases are published.
+* Added visual branch indicator on managed plugin cards.
+* Added button to copy a structured AI prompt for creating GitHub releases.
 
 = 0.0.3 =
-* Filtragem automática de repositórios na tela de Adicionar Plugin, exibindo apenas projetos PHP ou que possuam termos relacionados a plugins WordPress.
-* Adicionado banner informativo avisando sobre a filtragem.
-* Adicionado badge indicando a linguagem principal dos repositórios.
+* Automatic repository filtering in the Add Plugin tab — shows only PHP projects or WordPress plugin-related repositories.
+* Added informational banner about the filtering.
+* Added language badge on repository cards.
 
 = 0.0.2 =
-* Adicionado cabeçalhos de licenciamento GPLv2 or later para conformidade com o repositório oficial WordPress.org.
-* Criados arquivos oficiais readme.txt e LICENSE.
-* Organizada a estrutura de repositório e pastas para publicação.
+* Added GPLv2 or later license headers for WordPress.org compliance.
+* Created official readme.txt and LICENSE files.
+* Organized repository structure for directory submission.
 
 = 0.0.1 =
-* Versão de lançamento inicial contendo recursos base de criptografia AES-256-GCM, gerenciador de APIs, verificador automático via WP-Cron e dashboard administrativo.
+* Initial release with AES-256-GCM encryption, GitHub API manager, automatic WP-Cron checker, and admin dashboard.
+
+== Upgrade Notice ==
+
+= 0.0.15 =
+Bundled Lucide icons locally — no behavior changes, just a compliance fix.

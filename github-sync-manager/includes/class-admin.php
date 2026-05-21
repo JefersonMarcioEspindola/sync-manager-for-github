@@ -71,9 +71,9 @@ class GSM_Admin {
 
 		wp_enqueue_script(
 			'lucide',
-			'https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js',
+			plugins_url( 'assets/js/lucide.min.js', dirname( __FILE__ ) ),
 			array(),
-			null,
+			'1.16.0',
 			true
 		);
 
