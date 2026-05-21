@@ -2,10 +2,12 @@
 /**
  * Plugin Name: GitHub Sync Manager
  * Description: Permite ao administrador do site instalar e manter atualizados outros plugins WordPress hospedados em repositórios do GitHub, públicos ou privados, usando as releases como fonte de verdade.
- * Version: 1.0.0
+ * Version: 0.0.2
  * Author: DeepMind Antigravity
  * Text Domain: github-sync-manager
  * Domain Path: /languages
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * @package GitHubSyncManager
  */
@@ -17,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Constant Definitions
  */
-define( 'GSM_VERSION', '1.0.0' );
+define( 'GSM_VERSION', '0.0.2' );
 define( 'GSM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GSM_FILE', __FILE__ );
 

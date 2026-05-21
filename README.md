@@ -40,10 +40,13 @@ O caso de uso central é a distribuição ágil de plugins sob medida ou em dese
 │   │   ├── class-github-api.php # Cliente de chamadas REST à API do GitHub
 │   │   ├── class-manager.php    # Controle de banco de dados, diretórios e garbage collector
 │   │   └── class-updater.php    # Acoplamento de atualizações nativas do WordPress
-│   └── github-sync-manager.php  # Arquivo principal do plugin (iniciador, autoloader e WP-Cron)
+│   ├── github-sync-manager.php  # Arquivo principal do plugin (iniciador, autoloader e WP-Cron)
+│   ├── readme.txt               # Documentação oficial exigida pelo diretório WordPress.org
+│   └── LICENSE                  # Cópia local da licença GPLv2
 │
 └── releases/                    # Pasta de distribuição contendo os pacotes compactados
-    └── github-sync-manager-v0.0.1.zip
+    ├── github-sync-manager-v0.0.1.zip
+    └── github-sync-manager-v0.0.2.zip
 ```
 
 ---
@@ -60,4 +63,4 @@ O caso de uso central é a distribuição ágil de plugins sob medida ou em dese
 
 ## 🔒 Licença
 
-Este projeto é um software livre e de código aberto licenciado sob a licença **MIT**. Sinta-se à vontade para utilizar, modificar e contribuir!
+Este projeto é um software livre e de código aberto licenciado sob a licença **GNU General Public License v2 (ou posterior)**. Sinta-se à vontade para utilizar, modificar e contribuir!
