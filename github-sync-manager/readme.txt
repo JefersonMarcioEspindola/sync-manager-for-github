@@ -3,7 +3,7 @@ Contributors: JefersonMarcioEspindola
 Tags: github, sync, updates, plugin manager, private plugins, release updates
 Requires at least: 5.8
 Tested up to: 6.5
-Stable tag: 0.0.8
+Stable tag: 0.0.9
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -36,6 +36,11 @@ O sistema realiza uma comparação utilizando Semantic Versioning (SemVer) entre
 Absolutamente. O token é criptografado usando o algoritmo autenticado AES-256-GCM antes de ser salvo no banco de dados. A chave criptográfica é derivada de forma única com base em chaves privadas (`AUTH_KEY`/`SECURE_AUTH_KEY`) do seu arquivo `wp-config.php`, garantindo proteção de nível militar.
 
 == Changelog ==
+
+= 0.0.9 =
+* Seletor de pasta base substituído por um componente visual personalizado com hierarquia de pastas em árvore, linhas de conexão e indicador de seleção.
+* Corrigido alinhamento vertical do texto e emoji dentro do campo de seleção de origem.
+* Aplicação completa da nova paleta de cores da marca ao painel administrativo.
 
 = 0.0.8 =
 * Aplicada nova paleta de cores oficial ao painel administrativo: azul #2859FF (principal), #557CFF (hover), tema claro com fundo #FFFFFF, superfícies #EEEFF1 e bordas #C8C9D3.
