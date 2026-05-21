@@ -561,7 +561,7 @@ class GSM_GitHub_API {
 
 		// Check if it has 'Plugin Name:' and parse 'Version:'
 		if ( false !== stripos( $content, 'Plugin Name:' ) ) {
-			if ( preg_match( '/^[ \t/*#]*Version\s*:\s*([^$\r\n]+)/mi', $content, $matches ) ) {
+			if ( preg_match( '~^[ \t/*#]*Version\s*:\s*([^$\r\n]+)~mi', $content, $matches ) ) {
 				return trim( $matches[1] );
 			}
 		}
@@ -820,10 +820,10 @@ class GSM_GitHub_API {
 		if ( false !== stripos( $content, 'Plugin Name:' ) ) {
 			$name = '';
 			$version = '';
-			if ( preg_match( '/^[ \t/*#]*Plugin Name\s*:\s*([^$\r\n]+)/mi', $content, $name_matches ) ) {
+			if ( preg_match( '~^[ \t/*#]*Plugin Name\s*:\s*([^$\r\n]+)~mi', $content, $name_matches ) ) {
 				$name = trim( $name_matches[1] );
 			}
-			if ( preg_match( '/^[ \t/*#]*Version\s*:\s*([^$\r\n]+)/mi', $content, $version_matches ) ) {
+			if ( preg_match( '~^[ \t/*#]*Version\s*:\s*([^$\r\n]+)~mi', $content, $version_matches ) ) {
 				$version = trim( $version_matches[1] );
 			}
 

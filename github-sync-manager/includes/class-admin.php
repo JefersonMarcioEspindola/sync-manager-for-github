@@ -750,11 +750,6 @@ class GSM_Admin {
 				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 			}
 
-			// Capture any errors the skin collected
-			$skin_errors = $skin->get_errors();
-			if ( is_wp_error( $skin_errors ) && $skin_errors->get_error_message() ) {
-				wp_send_json_error( array( 'message' => $skin_errors->get_error_message() ) );
-			}
 
 			if ( ! $result ) {
 				$skin_messages = method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array();
