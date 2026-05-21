@@ -222,7 +222,7 @@ class GSM_Updater {
 
 		$token = get_option( GSM_Manager::OPTION_TOKEN );
 		if ( empty( $token ) ) {
-			return new WP_Error( 'gsm_missing_token', __( 'Não foi possível baixar o plugin: Token GitHub ausente.', 'github-sync-manager' ) );
+			return new WP_Error( 'gsm_missing_token', __( 'Não foi possível baixar o plugin: Token GitHub ausente.', 'sync-manager-for-github' ) );
 		}
 
 		$decrypted_token = GSM_Encryption::decrypt( $token );
@@ -240,7 +240,7 @@ class GSM_Updater {
 				'download',
 				'erro',
 				/* translators: %s: error message */
-				sprintf( __( 'Falha ao baixar o pacote do GitHub: %s', 'github-sync-manager' ), $tmp_file->get_error_message() )
+				sprintf( __( 'Falha ao baixar o pacote do GitHub: %s', 'sync-manager-for-github' ), $tmp_file->get_error_message() )
 			);
 			return $tmp_file;
 		}
@@ -293,13 +293,13 @@ class GSM_Updater {
 			if ( ! $has_plugin_header ) {
 				return new WP_Error(
 					'gsm_invalid_plugin_zip',
-					__( 'O ZIP baixado não contém um plugin WordPress válido (cabeçalho "Plugin Name:" ausente).', 'github-sync-manager' )
+					__( 'O ZIP baixado não contém um plugin WordPress válido (cabeçalho "Plugin Name:" ausente).', 'sync-manager-for-github' )
 				);
 			}
 		} else {
 			return new WP_Error(
 				'gsm_zip_open_failed',
-				__( 'Não foi possível abrir o ZIP baixado.', 'github-sync-manager' )
+				__( 'Não foi possível abrir o ZIP baixado.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -368,7 +368,7 @@ class GSM_Updater {
 				return new WP_Error(
 					'gsm_subfolder_not_found',
 					/* translators: %s: subfolder path */
-					sprintf( __( 'O subdiretório especificado "%s" não foi encontrado no repositório.', 'github-sync-manager' ), $subfolder )
+					sprintf( __( 'O subdiretório especificado "%s" não foi encontrado no repositório.', 'sync-manager-for-github' ), $subfolder )
 				);
 			}
 			$search_dir = trailingslashit( $search_dir );
@@ -400,7 +400,7 @@ class GSM_Updater {
 		if ( empty( $main_file ) ) {
 			return new WP_Error(
 				'gsm_slug_resolution_failed',
-				__( 'Não foi possível encontrar um arquivo PHP de plugin válido dentro do ZIP extraído.', 'github-sync-manager' )
+				__( 'Não foi possível encontrar um arquivo PHP de plugin válido dentro do ZIP extraído.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -410,7 +410,7 @@ class GSM_Updater {
 		if ( empty( $canonical_slug ) ) {
 			return new WP_Error(
 				'gsm_invalid_slug',
-				__( 'Falha ao resolver um slug válido para o plugin.', 'github-sync-manager' )
+				__( 'Falha ao resolver um slug válido para o plugin.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -437,7 +437,7 @@ class GSM_Updater {
 			if ( ! $wp_filesystem->move( $plugin_root_dir, $corrected_source ) ) {
 				return new WP_Error(
 					'gsm_rename_nested_failed',
-					__( 'Falha ao renomear o subdiretório do plugin para o slug canônico.', 'github-sync-manager' )
+					__( 'Falha ao renomear o subdiretório do plugin para o slug canônico.', 'sync-manager-for-github' )
 				);
 			}
 		} else {
@@ -446,7 +446,7 @@ class GSM_Updater {
 				if ( ! $wp_filesystem->move( $source_path, $corrected_source ) ) {
 					return new WP_Error(
 						'gsm_rename_failed',
-						__( 'Falha ao renomear o diretório temporário do plugin para o slug canônico.', 'github-sync-manager' )
+						__( 'Falha ao renomear o diretório temporário do plugin para o slug canônico.', 'sync-manager-for-github' )
 					);
 				}
 			}
@@ -517,7 +517,7 @@ class GSM_Updater {
 		if ( ! $copy_status ) {
 			return new WP_Error(
 				'gsm_backup_failed',
-				__( 'Falha ao criar cópia de segurança do plugin existente. Atualização cancelada por segurança.', 'github-sync-manager' )
+				__( 'Falha ao criar cópia de segurança do plugin existente. Atualização cancelada por segurança.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -565,14 +565,14 @@ class GSM_Updater {
 						$backup['repo'],
 						'restauracao',
 						'sucesso',
-						__( 'Atualização falhou. Backup restaurado com sucesso.', 'github-sync-manager' )
+						__( 'Atualização falhou. Backup restaurado com sucesso.', 'sync-manager-for-github' )
 					);
 				} else {
 					GSM_Manager::log(
 						$backup['repo'],
 						'restauracao',
 						'erro',
-						__( 'Atualização falhou e houve erro ao restaurar o backup. O plugin pode ter sido removido.', 'github-sync-manager' )
+						__( 'Atualização falhou e houve erro ao restaurar o backup. O plugin pode ter sido removido.', 'sync-manager-for-github' )
 					);
 				}
 			}
@@ -585,7 +585,7 @@ class GSM_Updater {
 				$backup['repo'],
 				'atualizacao',
 				'sucesso',
-				__( 'Plugin atualizado com sucesso usando o fluxo nativo.', 'github-sync-manager' )
+				__( 'Plugin atualizado com sucesso usando o fluxo nativo.', 'sync-manager-for-github' )
 			);
 		}
 

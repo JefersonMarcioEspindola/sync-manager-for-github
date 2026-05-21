@@ -6,7 +6,7 @@
  * Version: 0.0.16
  * Author: Jeferson Espindola
  * Author URI: https://github.com/JefersonMarcioEspindola/github-sync-manager
- * Text Domain: github-sync-manager
+ * Text Domain: sync-manager-for-github
  * Domain Path: /languages
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -63,7 +63,7 @@ add_action( 'plugins_loaded', 'gsm_init' );
  */
 add_filter( 'plugin_locale', 'gsm_force_plugin_locale', 10, 2 );
 function gsm_force_plugin_locale( $locale, $domain ) {
-	if ( 'github-sync-manager' === $domain ) {
+	if ( 'sync-manager-for-github' === $domain ) {
 		$selected = get_option( 'gsm_locale', '' );
 		if ( ! empty( $selected ) ) {
 			return $selected;
@@ -87,7 +87,7 @@ function gsm_activate() {
 		wp_schedule_event( time(), 'twicedaily', 'gsm_cron_check_updates' );
 	}
 
-	GSM_Manager::log( 'sistema', 'ativacao', 'sucesso', __( 'Plugin ativado. Diretórios temporários protegidos e WP-Cron agendado com sucesso.', 'github-sync-manager' ) );
+	GSM_Manager::log( 'sistema', 'ativacao', 'sucesso', __( 'Plugin ativado. Diretórios temporários protegidos e WP-Cron agendado com sucesso.', 'sync-manager-for-github' ) );
 }
 
 /**
@@ -151,7 +151,7 @@ function gsm_cron_check_updates_callback() {
 		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_file;
 		if ( ! file_exists( $plugin_path ) ) {
 			$managed[ $repo ]['status']        = 'indisponivel';
-			$managed[ $repo ]['error_message'] = __( 'Arquivo principal do plugin não encontrado localmente.', 'github-sync-manager' );
+			$managed[ $repo ]['error_message'] = __( 'Arquivo principal do plugin não encontrado localmente.', 'sync-manager-for-github' );
 			continue;
 		}
 
@@ -176,7 +176,7 @@ function gsm_cron_check_updates_callback() {
 
 		if ( empty( $releases ) ) {
 			$managed[ $repo ]['status']        = 'erro';
-			$managed[ $repo ]['error_message'] = __( 'Repositório não tem releases publicadas.', 'github-sync-manager' );
+			$managed[ $repo ]['error_message'] = __( 'Repositório não tem releases publicadas.', 'sync-manager-for-github' );
 			continue;
 		}
 
@@ -199,5 +199,5 @@ function gsm_cron_check_updates_callback() {
 	// Delete native plugins update transient to force refresh
 	delete_site_transient( 'update_plugins' );
 
-	GSM_Manager::log( 'sistema', 'cron_check', 'sucesso', __( 'Cron automático executou a verificação periódica de atualizações e limpeza.', 'github-sync-manager' ) );
+	GSM_Manager::log( 'sistema', 'cron_check', 'sucesso', __( 'Cron automático executou a verificação periódica de atualizações e limpeza.', 'sync-manager-for-github' ) );
 }

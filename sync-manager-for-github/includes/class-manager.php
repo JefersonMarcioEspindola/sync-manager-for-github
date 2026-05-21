@@ -103,7 +103,7 @@ class GSM_Manager {
 				return new WP_Error(
 					'gsm_dir_creation_failed',
 					/* translators: %s: directory name */
-					sprintf( __( 'Falha ao criar o diretório seguro: %s.', 'github-sync-manager' ), $subfolder )
+					sprintf( __( 'Falha ao criar o diretório seguro: %s.', 'sync-manager-for-github' ), $subfolder )
 				);
 			}
 		}
@@ -171,10 +171,10 @@ class GSM_Manager {
 		// Prevent adding this plugin itself
 		$repo_slug = strtolower( trim( $repo_slug ) );
 
-		if ( false !== strpos( $repo_slug, 'github-sync-manager' ) ) {
+		if ( false !== strpos( $repo_slug, 'sync-manager-for-github' ) ) {
 			return new WP_Error(
 				'gsm_blocked_self_management',
-				__( 'Não é permitido gerenciar este próprio plugin através do GitHub Sync Manager para evitar conflitos de atualização.', 'github-sync-manager' )
+				__( 'Não é permitido gerenciar este próprio plugin através do GitHub Sync Manager para evitar conflitos de atualização.', 'sync-manager-for-github' )
 			);
 		}
 

@@ -42,10 +42,10 @@ class GSM_Admin {
 	 */
 	public static function add_admin_menu() {
 		add_menu_page(
-			__( 'Sync Manager', 'github-sync-manager' ),
-			__( 'Sync Manager', 'github-sync-manager' ),
+			__( 'Sync Manager', 'sync-manager-for-github' ),
+			__( 'Sync Manager', 'sync-manager-for-github' ),
 			'manage_options',
-			'github-sync-manager',
+			'sync-manager-for-github',
 			array( __CLASS__, 'render_admin_page' ),
 			'dashicons-update-alt',
 			100
@@ -58,7 +58,7 @@ class GSM_Admin {
 	 * @param string $hook The current admin page hook.
 	 */
 	public static function enqueue_assets( $hook ) {
-		if ( 'toplevel_page_github-sync-manager' !== $hook ) {
+		if ( 'toplevel_page_sync-manager-for-github' !== $hook ) {
 			return;
 		}
 
@@ -90,60 +90,60 @@ class GSM_Admin {
 			'url'    => admin_url( 'admin-ajax.php' ),
 			'nonce'  => wp_create_nonce( 'gsm_admin_nonce' ),
 			'texts'  => array(
-				'confirm_stop'          => __( 'O plugin continuará instalado, mas deixará de receber atualizações automáticas. Deseja continuar?', 'github-sync-manager' ),
-				'installing'            => __( 'Baixando e instalando...', 'github-sync-manager' ),
-				'searching'             => __( 'Pesquisando repositórios...', 'github-sync-manager' ),
-				'comm_fail'             => __( 'Falha na comunicação.', 'github-sync-manager' ),
+				'confirm_stop'          => __( 'O plugin continuará instalado, mas deixará de receber atualizações automáticas. Deseja continuar?', 'sync-manager-for-github' ),
+				'installing'            => __( 'Baixando e instalando...', 'sync-manager-for-github' ),
+				'searching'             => __( 'Pesquisando repositórios...', 'sync-manager-for-github' ),
+				'comm_fail'             => __( 'Falha na comunicação.', 'sync-manager-for-github' ),
 				/* translators: %s: repository name */
-				'confirm_install'       => __( 'Deseja baixar e instalar o plugin do repositório %s?', 'github-sync-manager' ),
+				'confirm_install'       => __( 'Deseja baixar e instalar o plugin do repositório %s?', 'sync-manager-for-github' ),
 				/* translators: %s: error message */
-				'install_error'         => __( 'Erro na Instalação: %s', 'github-sync-manager' ),
-				'install_fail'          => __( 'Falha na comunicação de rede ao tentar instalar o plugin.', 'github-sync-manager' ),
-				'remove_error'          => __( 'Erro ao excluir gerenciamento.', 'github-sync-manager' ),
-				'scan_fail'             => __( 'Falha na comunicação de rede durante o escaneamento.', 'github-sync-manager' ),
-				'prompt_copied'         => __( 'Prompt de IA copiado para a área de transferência com sucesso!', 'github-sync-manager' ),
-				'prompt_copy_fail'      => __( 'Não foi possível copiar o prompt automaticamente. Por favor, copie manualmente.', 'github-sync-manager' ),
-				'save_locale_error'     => __( 'Erro ao salvar o idioma.', 'github-sync-manager' ),
-				'loading_repos'         => __( 'Carregando seus repositórios do GitHub...', 'github-sync-manager' ),
-				'repos_load_error'      => __( 'Erro de conexão ao buscar repositórios.', 'github-sync-manager' ),
-				'no_repos_found'        => __( 'Nenhum repositório encontrado na sua conta do GitHub.', 'github-sync-manager' ),
-				'already_managed'       => __( 'Já Gerenciado', 'github-sync-manager' ),
-				'install_btn'           => __( 'Instalar Plugin', 'github-sync-manager' ),
-				'no_desc'               => __( 'Sem descrição no repositório.', 'github-sync-manager' ),
+				'install_error'         => __( 'Erro na Instalação: %s', 'sync-manager-for-github' ),
+				'install_fail'          => __( 'Falha na comunicação de rede ao tentar instalar o plugin.', 'sync-manager-for-github' ),
+				'remove_error'          => __( 'Erro ao excluir gerenciamento.', 'sync-manager-for-github' ),
+				'scan_fail'             => __( 'Falha na comunicação de rede durante o escaneamento.', 'sync-manager-for-github' ),
+				'prompt_copied'         => __( 'Prompt de IA copiado para a área de transferência com sucesso!', 'sync-manager-for-github' ),
+				'prompt_copy_fail'      => __( 'Não foi possível copiar o prompt automaticamente. Por favor, copie manualmente.', 'sync-manager-for-github' ),
+				'save_locale_error'     => __( 'Erro ao salvar o idioma.', 'sync-manager-for-github' ),
+				'loading_repos'         => __( 'Carregando seus repositórios do GitHub...', 'sync-manager-for-github' ),
+				'repos_load_error'      => __( 'Erro de conexão ao buscar repositórios.', 'sync-manager-for-github' ),
+				'no_repos_found'        => __( 'Nenhum repositório encontrado na sua conta do GitHub.', 'sync-manager-for-github' ),
+				'already_managed'       => __( 'Já Gerenciado', 'sync-manager-for-github' ),
+				'install_btn'           => __( 'Instalar Plugin', 'sync-manager-for-github' ),
+				'no_desc'               => __( 'Sem descrição no repositório.', 'sync-manager-for-github' ),
 				/* translators: %s: date and time */
-				'updated_lbl'           => __( 'Atualizado: %s', 'github-sync-manager' ),
-				'private_lbl'           => __( 'Privado', 'github-sync-manager' ),
-				'public_lbl'            => __( 'Público', 'github-sync-manager' ),
-				'no_managed'            => __( 'Nenhum plugin gerenciado ainda. Acesse a aba "Adicionar Plugin" para começar.', 'github-sync-manager' ),
-				'confirm_disconnect'    => __( 'Tem certeza de que deseja desconectar sua conta GitHub? Os plugins continuarão instalados, mas não receberão notificações de atualização.', 'github-sync-manager' ),
+				'updated_lbl'           => __( 'Atualizado: %s', 'sync-manager-for-github' ),
+				'private_lbl'           => __( 'Privado', 'sync-manager-for-github' ),
+				'public_lbl'            => __( 'Público', 'sync-manager-for-github' ),
+				'no_managed'            => __( 'Nenhum plugin gerenciado ainda. Acesse a aba "Adicionar Plugin" para começar.', 'sync-manager-for-github' ),
+				'confirm_disconnect'    => __( 'Tem certeza de que deseja desconectar sua conta GitHub? Os plugins continuarão instalados, mas não receberão notificações de atualização.', 'sync-manager-for-github' ),
 				/* translators: 1: repository name, 2: version number */
-				'confirm_prompt'        => __( 'Aja como um desenvolvedor experiente em WordPress e Git. Meu repositório do plugin \'%1$s\' não possui releases publicadas no GitHub. Crie um guia passo a passo conciso em Markdown para eu publicar a release \'v%2$s\' desse plugin, explicando como gerar o arquivo ZIP correto (apenas a pasta do plugin, sem os arquivos de versionamento do Git) e como criar a Release no GitHub usando a interface web ou GitHub CLI. Inclua boas práticas de versionamento SemVer.', 'github-sync-manager' ),
-				'req_failed'            => __( 'Falha na requisição. Verifique sua conexão de rede.', 'github-sync-manager' ),
+				'confirm_prompt'        => __( 'Aja como um desenvolvedor experiente em WordPress e Git. Meu repositório do plugin \'%1$s\' não possui releases publicadas no GitHub. Crie um guia passo a passo conciso em Markdown para eu publicar a release \'v%2$s\' desse plugin, explicando como gerar o arquivo ZIP correto (apenas a pasta do plugin, sem os arquivos de versionamento do Git) e como criar a Release no GitHub usando a interface web ou GitHub CLI. Inclua boas práticas de versionamento SemVer.', 'sync-manager-for-github' ),
+				'req_failed'            => __( 'Falha na requisição. Verifique sua conexão de rede.', 'sync-manager-for-github' ),
 				/* translators: %s: repository name */
-				'force_update_confirm'  => __( 'Isso irá baixar e reinstalar a última versão do repositório %s, sobrescrevendo a versão atual. Continuar?', 'github-sync-manager' ),
+				'force_update_confirm'  => __( 'Isso irá baixar e reinstalar a última versão do repositório %s, sobrescrevendo a versão atual. Continuar?', 'sync-manager-for-github' ),
 				/* translators: %s: version number */
-				'force_update_ok'       => __( 'Plugin reinstalado com sucesso! (Versão %s)', 'github-sync-manager' ),
+				'force_update_ok'       => __( 'Plugin reinstalado com sucesso! (Versão %s)', 'sync-manager-for-github' ),
 				/* translators: %s: error message */
-				'force_update_err'      => __( 'Erro ao reinstalar: %s', 'github-sync-manager' ),
-				'force_update_fail'     => __( 'Falha na comunicação ao tentar reinstalar.', 'github-sync-manager' ),
-				'force_update_btn'      => __( 'Atualizar', 'github-sync-manager' ),
-				'force_updating'        => __( 'Reinstalando...', 'github-sync-manager' ),
-				'install_success_title' => __( '&#x2705; Plugin Instalado com Sucesso!', 'github-sync-manager' ),
+				'force_update_err'      => __( 'Erro ao reinstalar: %s', 'sync-manager-for-github' ),
+				'force_update_fail'     => __( 'Falha na comunicação ao tentar reinstalar.', 'sync-manager-for-github' ),
+				'force_update_btn'      => __( 'Atualizar', 'sync-manager-for-github' ),
+				'force_updating'        => __( 'Reinstalando...', 'sync-manager-for-github' ),
+				'install_success_title' => __( '&#x2705; Plugin Instalado com Sucesso!', 'sync-manager-for-github' ),
 				/* translators: 1: plugin name, 2: version number */
-				'install_success_msg'   => __( 'O plugin <strong>%1$s</strong> (Versão %2$s) foi baixado e gravado localmente.', 'github-sync-manager' ),
-				'activate_btn'          => __( 'Ativar Plugin Agora', 'github-sync-manager' ),
+				'install_success_msg'   => __( 'O plugin <strong>%1$s</strong> (Versão %2$s) foi baixado e gravado localmente.', 'sync-manager-for-github' ),
+				'activate_btn'          => __( 'Ativar Plugin Agora', 'sync-manager-for-github' ),
 				/* translators: %s: error message */
-				'scan_error'            => __( 'Erro ao verificar: %s', 'github-sync-manager' ),
-				'checking_repo'         => __( 'Verificando estrutura do repositório...', 'github-sync-manager' ),
+				'scan_error'            => __( 'Erro ao verificar: %s', 'sync-manager-for-github' ),
+				'checking_repo'         => __( 'Verificando estrutura do repositório...', 'sync-manager-for-github' ),
 				/* translators: 1: plugin name, 2: version number */
-				'plugin_detected'       => __( 'Plugin <strong>%1$s</strong> (Versão %2$s) detectado automaticamente.', 'github-sync-manager' ),
-				'plugin_not_detected'   => __( 'Nenhum plugin WordPress válido foi encontrado automaticamente. Selecione a pasta base e a origem abaixo para instalar.', 'github-sync-manager' ),
-				'advanced_options'      => __( 'Opções Avançadas', 'github-sync-manager' ),
-				'select_source'         => __( 'Origem (Release ou Ramo):', 'github-sync-manager' ),
-				'select_folder'         => __( 'Pasta Base do Plugin:', 'github-sync-manager' ),
-				'select_folder_desc'    => __( 'Indique a subpasta do repositório onde os arquivos do plugin de fato residem (a pasta que contém o arquivo PHP principal). O gerenciador extrairá apenas essa pasta, descartando arquivos externos. Isso permite sincronizar diretamente o código-fonte, eliminando a necessidade de gerar arquivos ZIP ou criar releases manuais no GitHub para atualizar o plugin!', 'github-sync-manager' ),
-				'root_folder'           => __( 'Pasta Raiz', 'github-sync-manager' ),
-				'close_btn'             => __( 'Fechar', 'github-sync-manager' ),
+				'plugin_detected'       => __( 'Plugin <strong>%1$s</strong> (Versão %2$s) detectado automaticamente.', 'sync-manager-for-github' ),
+				'plugin_not_detected'   => __( 'Nenhum plugin WordPress válido foi encontrado automaticamente. Selecione a pasta base e a origem abaixo para instalar.', 'sync-manager-for-github' ),
+				'advanced_options'      => __( 'Opções Avançadas', 'sync-manager-for-github' ),
+				'select_source'         => __( 'Origem (Release ou Ramo):', 'sync-manager-for-github' ),
+				'select_folder'         => __( 'Pasta Base do Plugin:', 'sync-manager-for-github' ),
+				'select_folder_desc'    => __( 'Indique a subpasta do repositório onde os arquivos do plugin de fato residem (a pasta que contém o arquivo PHP principal). O gerenciador extrairá apenas essa pasta, descartando arquivos externos. Isso permite sincronizar diretamente o código-fonte, eliminando a necessidade de gerar arquivos ZIP ou criar releases manuais no GitHub para atualizar o plugin!', 'sync-manager-for-github' ),
+				'root_folder'           => __( 'Pasta Raiz', 'sync-manager-for-github' ),
+				'close_btn'             => __( 'Fechar', 'sync-manager-for-github' ),
 			),
 		) );
 	}
@@ -153,7 +153,7 @@ class GSM_Admin {
 	 */
 	public static function render_admin_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Você não tem permissão para acessar esta página.', 'github-sync-manager' ) );
+			wp_die( esc_html__( 'Você não tem permissão para acessar esta página.', 'sync-manager-for-github' ) );
 		}
 
 		$connected_user  = get_option( GSM_Manager::OPTION_USER );
@@ -166,7 +166,7 @@ class GSM_Admin {
 			<div class="gsm-header-panel">
 				<h1 class="gsm-title">
 					<i data-lucide="github" class="gsm-icon"></i>
-					<?php esc_html_e( 'Sync Manager for GitHub', 'github-sync-manager' ); ?>
+					<?php esc_html_e( 'Sync Manager for GitHub', 'sync-manager-for-github' ); ?>
 				</h1>
 				
 				<?php if ( $token_exists && is_array( $connected_user ) ) : ?>
@@ -176,7 +176,7 @@ class GSM_Admin {
 							<span class="gsm-username">@<?php echo esc_html( $connected_user['username'] ); ?></span>
 							<span class="gsm-pulse-badge">
 								<span class="gsm-pulse"></span>
-								<?php esc_html_e( 'Conectado', 'github-sync-manager' ); ?>
+								<?php esc_html_e( 'Conectado', 'sync-manager-for-github' ); ?>
 							</span>
 						</div>
 					</div>
@@ -185,32 +185,32 @@ class GSM_Admin {
 
 			<?php if ( ! empty( $security_error ) ) : ?>
 				<div class="notice notice-error gsm-notice-blocking">
-					<p><strong><?php esc_html_e( 'Erro de Segurança:', 'github-sync-manager' ); ?></strong> <?php echo esc_html( $security_error ); ?></p>
+					<p><strong><?php esc_html_e( 'Erro de Segurança:', 'sync-manager-for-github' ); ?></strong> <?php echo esc_html( $security_error ); ?></p>
 				</div>
 			<?php else : ?>
 
 				<?php if ( ! $token_exists ) : ?>
 					<!-- Activation screen -->
 					<div class="gsm-card gsm-login-card">
-						<h2><?php esc_html_e( 'Conectar Conta GitHub', 'github-sync-manager' ); ?></h2>
-						<p><?php esc_html_e( 'Para começar a gerenciar seus plugins hospedados no GitHub, conecte uma conta utilizando um Personal Access Token (PAT) com as devidas permissões.', 'github-sync-manager' ); ?></p>
+						<h2><?php esc_html_e( 'Conectar Conta GitHub', 'sync-manager-for-github' ); ?></h2>
+						<p><?php esc_html_e( 'Para começar a gerenciar seus plugins hospedados no GitHub, conecte uma conta utilizando um Personal Access Token (PAT) com as devidas permissões.', 'sync-manager-for-github' ); ?></p>
 						
 						<div class="gsm-help-box">
-							<p><strong><?php esc_html_e( 'Qual tipo de token criar?', 'github-sync-manager' ); ?></strong></p>
+							<p><strong><?php esc_html_e( 'Qual tipo de token criar?', 'sync-manager-for-github' ); ?></strong></p>
 							<ul>
-								<li><strong>Classic PAT:</strong> <?php esc_html_e( 'Crie um token com o escopo ', 'github-sync-manager' ); ?><code>repo</code> (<?php esc_html_e( 'para repositórios privados e públicos', 'github-sync-manager' ); ?>) <?php esc_html_e( 'ou ', 'github-sync-manager' ); ?><code>public_repo</code> (<?php esc_html_e( 'somente para públicos', 'github-sync-manager' ); ?>).</li>
-								<li><strong>Fine-Grained PAT (Novo):</strong> <?php esc_html_e( 'Selecione permissão de leitura e gravação para "Contents" e "Metadata" nos repositórios que deseja gerenciar.', 'github-sync-manager' ); ?></li>
+								<li><strong>Classic PAT:</strong> <?php esc_html_e( 'Crie um token com o escopo ', 'sync-manager-for-github' ); ?><code>repo</code> (<?php esc_html_e( 'para repositórios privados e públicos', 'sync-manager-for-github' ); ?>) <?php esc_html_e( 'ou ', 'sync-manager-for-github' ); ?><code>public_repo</code> (<?php esc_html_e( 'somente para públicos', 'sync-manager-for-github' ); ?>).</li>
+								<li><strong>Fine-Grained PAT (Novo):</strong> <?php esc_html_e( 'Selecione permissão de leitura e gravação para "Contents" e "Metadata" nos repositórios que deseja gerenciar.', 'sync-manager-for-github' ); ?></li>
 							</ul>
-							<p>👉 <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Clique aqui para criar seu Token no GitHub', 'github-sync-manager' ); ?></a></p>
+							<p>👉 <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Clique aqui para criar seu Token no GitHub', 'sync-manager-for-github' ); ?></a></p>
 						</div>
 
 						<form id="gsm-connect-form">
 							<div class="gsm-form-group">
-								<label for="gsm_pat_token"><strong><?php esc_html_e( 'GitHub Personal Access Token (PAT)', 'github-sync-manager' ); ?></strong></label>
+								<label for="gsm_pat_token"><strong><?php esc_html_e( 'GitHub Personal Access Token (PAT)', 'sync-manager-for-github' ); ?></strong></label>
 								<input type="password" id="gsm_pat_token" name="gsm_pat_token" class="regular-text" required placeholder="github_pat_..." autocomplete="off" />
 							</div>
 							<div class="gsm-submit-btn-row">
-								<button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Conectar Conta', 'github-sync-manager' ); ?></button>
+								<button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Conectar Conta', 'sync-manager-for-github' ); ?></button>
 								<span class="spinner gsm-spinner"></span>
 							</div>
 							<div class="gsm-error-message" style="display:none;"></div>
@@ -219,10 +219,10 @@ class GSM_Admin {
 				<?php else : ?>
 					<!-- Admin core view -->
 					<h2 class="nav-tab-wrapper gsm-tabs-nav">
-						<a href="#gsm-tab-plugins" class="nav-tab nav-tab-active"><?php esc_html_e( 'Plugins Gerenciados', 'github-sync-manager' ); ?></a>
-						<a href="#gsm-tab-add" class="nav-tab" id="gsm-trigger-add-tab"><?php esc_html_e( 'Adicionar Plugin', 'github-sync-manager' ); ?></a>
-						<a href="#gsm-tab-logs" class="nav-tab"><?php esc_html_e( 'Histórico de Logs', 'github-sync-manager' ); ?></a>
-						<a href="#gsm-tab-config" class="nav-tab"><?php esc_html_e( 'Configurações', 'github-sync-manager' ); ?></a>
+						<a href="#gsm-tab-plugins" class="nav-tab nav-tab-active"><?php esc_html_e( 'Plugins Gerenciados', 'sync-manager-for-github' ); ?></a>
+						<a href="#gsm-tab-add" class="nav-tab" id="gsm-trigger-add-tab"><?php esc_html_e( 'Adicionar Plugin', 'sync-manager-for-github' ); ?></a>
+						<a href="#gsm-tab-logs" class="nav-tab"><?php esc_html_e( 'Histórico de Logs', 'sync-manager-for-github' ); ?></a>
+						<a href="#gsm-tab-config" class="nav-tab"><?php esc_html_e( 'Configurações', 'sync-manager-for-github' ); ?></a>
 					</h2>
 
 					<!-- Tab content: Plugins -->
@@ -230,7 +230,7 @@ class GSM_Admin {
 						<div class="gsm-action-bar">
 							<button type="button" class="button button-primary" id="gsm-btn-scan-now">
 								<i data-lucide="search" class="gsm-icon"></i>
-								<?php esc_html_e( 'Verificar atualizações agora', 'github-sync-manager' ); ?>
+								<?php esc_html_e( 'Verificar atualizações agora', 'sync-manager-for-github' ); ?>
 							</button>
 							<span class="spinner gsm-spinner" id="gsm-scan-spinner"></span>
 						</div>
@@ -244,14 +244,14 @@ class GSM_Admin {
 					<div id="gsm-tab-add" class="gsm-tab-content">
 						<div class="gsm-info-notice" style="margin-bottom: 20px; margin-top: 0;">
 							<i data-lucide="info" class="gsm-icon"></i>
-							<p><?php esc_html_e( 'Exibindo apenas repositórios com código PHP principal ou com nome/descrição relacionados a plugins WordPress.', 'github-sync-manager' ); ?></p>
+							<p><?php esc_html_e( 'Exibindo apenas repositórios com código PHP principal ou com nome/descrição relacionados a plugins WordPress.', 'sync-manager-for-github' ); ?></p>
 						</div>
 
 						<div class="gsm-filter-bar">
-							<input type="text" id="gsm-repo-search" placeholder="<?php esc_attr_e( 'Buscar repositório por nome...', 'github-sync-manager' ); ?>" autocomplete="off" />
+							<input type="text" id="gsm-repo-search" placeholder="<?php esc_attr_e( 'Buscar repositório por nome...', 'sync-manager-for-github' ); ?>" autocomplete="off" />
 							<button type="button" class="button" id="gsm-btn-reload-repos">
 								<i data-lucide="refresh-cw" class="gsm-icon"></i>
-								<?php esc_html_e( 'Recarregar Repositórios', 'github-sync-manager' ); ?>
+								<?php esc_html_e( 'Recarregar Repositórios', 'sync-manager-for-github' ); ?>
 							</button>
 							<span class="spinner gsm-spinner" id="gsm-repos-spinner"></span>
 						</div>
@@ -273,48 +273,48 @@ class GSM_Admin {
 					<!-- Tab content: Settings/Config -->
 					<div id="gsm-tab-config" class="gsm-tab-content">
 						<div class="gsm-card gsm-settings-card">
-							<h2><?php esc_html_e( 'Configurações do Sync Manager', 'github-sync-manager' ); ?></h2>
+							<h2><?php esc_html_e( 'Configurações do Sync Manager', 'sync-manager-for-github' ); ?></h2>
 							<table class="form-table" role="presentation">
 								<tbody>
 									<tr>
-										<th scope="row"><?php esc_html_e( 'Conta Conectada', 'github-sync-manager' ); ?></th>
+										<th scope="row"><?php esc_html_e( 'Conta Conectada', 'sync-manager-for-github' ); ?></th>
 										<td>
 											<div class="gsm-profile-detail">
 												<img src="<?php echo esc_url( $connected_user['avatar_url'] ); ?>" class="gsm-profile-avatar" alt="Avatar" />
 												<div>
 													<strong>@<?php echo esc_html( $connected_user['username'] ); ?></strong>
 													<?php /* translators: %s: token type */ ?>
-					<p class="description"><?php printf( esc_html__( 'Tipo de Token: %s', 'github-sync-manager' ), esc_html( ucfirst( $connected_user['token_type'] ) ) ); ?></p>
+					<p class="description"><?php printf( esc_html__( 'Tipo de Token: %s', 'sync-manager-for-github' ), esc_html( ucfirst( $connected_user['token_type'] ) ) ); ?></p>
 												</div>
 											</div>
 										</td>
 									</tr>
 									<tr>
-										<th scope="row"><?php esc_html_e( 'Token Armazenado', 'github-sync-manager' ); ?></th>
+										<th scope="row"><?php esc_html_e( 'Token Armazenado', 'sync-manager-for-github' ); ?></th>
 										<td>
 											<code><?php echo esc_html( GSM_Encryption::mask_token( GSM_Encryption::decrypt( get_option( GSM_Manager::OPTION_TOKEN ) ) ) ); ?></code>
 										</td>
 									</tr>
 									<tr>
-										<th scope="row"><?php esc_html_e( 'Idioma do Plugin', 'github-sync-manager' ); ?></th>
+										<th scope="row"><?php esc_html_e( 'Idioma do Plugin', 'sync-manager-for-github' ); ?></th>
 										<td>
 											<?php $selected_locale = get_option( 'gsm_locale', 'pt_BR' ); ?>
 											<select id="gsm_locale" name="gsm_locale" style="min-width: 200px;">
-												<option value="pt_BR" <?php selected( $selected_locale, 'pt_BR' ); ?>><?php esc_html_e( 'Português (Brasil)', 'github-sync-manager' ); ?></option>
-												<option value="en_US" <?php selected( $selected_locale, 'en_US' ); ?>><?php esc_html_e( 'English (US)', 'github-sync-manager' ); ?></option>
-												<option value="es_ES" <?php selected( $selected_locale, 'es_ES' ); ?>><?php esc_html_e( 'Español', 'github-sync-manager' ); ?></option>
+												<option value="pt_BR" <?php selected( $selected_locale, 'pt_BR' ); ?>><?php esc_html_e( 'Português (Brasil)', 'sync-manager-for-github' ); ?></option>
+												<option value="en_US" <?php selected( $selected_locale, 'en_US' ); ?>><?php esc_html_e( 'English (US)', 'sync-manager-for-github' ); ?></option>
+												<option value="es_ES" <?php selected( $selected_locale, 'es_ES' ); ?>><?php esc_html_e( 'Español', 'sync-manager-for-github' ); ?></option>
 											</select>
-											<p class="description"><?php esc_html_e( 'Selecione o idioma da interface do Sync Manager for GitHub.', 'github-sync-manager' ); ?></p>
+											<p class="description"><?php esc_html_e( 'Selecione o idioma da interface do Sync Manager for GitHub.', 'sync-manager-for-github' ); ?></p>
 										</td>
 									</tr>
 									<tr>
-										<th scope="row"><?php esc_html_e( 'Agendamento Automático', 'github-sync-manager' ); ?></th>
+										<th scope="row"><?php esc_html_e( 'Agendamento Automático', 'sync-manager-for-github' ); ?></th>
 										<td>
-											<p><?php esc_html_e( 'O sistema verifica se há atualizações disponíveis para os plugins de forma automática duas vezes ao dia.', 'github-sync-manager' ); ?></p>
+											<p><?php esc_html_e( 'O sistema verifica se há atualizações disponíveis para os plugins de forma automática duas vezes ao dia.', 'sync-manager-for-github' ); ?></p>
 											
 											<div class="gsm-info-notice">
 												<i data-lucide="info" class="gsm-icon"></i>
-												<p><em>“<?php esc_html_e( 'As verificações automáticas dependem de tráfego no site. Para sites de produção, recomenda-se desabilitar o WP-Cron no wp-config.php e agendar uma tarefa cron real no servidor chamando wp-cron.php.', 'github-sync-manager' ); ?>”</em></p>
+												<p><em>“<?php esc_html_e( 'As verificações automáticas dependem de tráfego no site. Para sites de produção, recomenda-se desabilitar o WP-Cron no wp-config.php e agendar uma tarefa cron real no servidor chamando wp-cron.php.', 'sync-manager-for-github' ); ?>”</em></p>
 											</div>
 										</td>
 									</tr>
@@ -323,7 +323,7 @@ class GSM_Admin {
 
 							<div class="gsm-settings-actions">
 								<button type="button" class="button button-link-delete" id="gsm-btn-disconnect">
-									<?php esc_html_e( 'Desconectar conta GitHub', 'github-sync-manager' ); ?>
+									<?php esc_html_e( 'Desconectar conta GitHub', 'sync-manager-for-github' ); ?>
 								</button>
 								<span class="spinner gsm-spinner" id="gsm-disconnect-spinner"></span>
 							</div>
@@ -339,15 +339,15 @@ class GSM_Admin {
 			<div class="gsm-modal-backdrop"></div>
 			<div class="gsm-modal-container">
 				<div class="gsm-modal-header">
-					<h3 class="gsm-modal-title"><?php esc_html_e( 'Instalar Plugin', 'github-sync-manager' ); ?></h3>
-					<button type="button" class="gsm-modal-close" aria-label="<?php esc_attr_e( 'Fechar', 'github-sync-manager' ); ?>">&times;</button>
+					<h3 class="gsm-modal-title"><?php esc_html_e( 'Instalar Plugin', 'sync-manager-for-github' ); ?></h3>
+					<button type="button" class="gsm-modal-close" aria-label="<?php esc_attr_e( 'Fechar', 'sync-manager-for-github' ); ?>">&times;</button>
 				</div>
 				<div class="gsm-modal-body">
 					<!-- Conteúdo dinâmico via JS -->
 				</div>
 				<div class="gsm-modal-footer">
-					<button type="button" class="button gsm-modal-btn-cancel"><?php esc_html_e( 'Cancelar', 'github-sync-manager' ); ?></button>
-					<button type="button" class="button button-primary gsm-modal-btn-install" disabled><?php esc_html_e( 'Instalar', 'github-sync-manager' ); ?></button>
+					<button type="button" class="button gsm-modal-btn-cancel"><?php esc_html_e( 'Cancelar', 'sync-manager-for-github' ); ?></button>
+					<button type="button" class="button button-primary gsm-modal-btn-install" disabled><?php esc_html_e( 'Instalar', 'sync-manager-for-github' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -361,7 +361,7 @@ class GSM_Admin {
 		$managed = get_option( GSM_Manager::OPTION_PLUGINS, array() );
 		if ( empty( $managed ) || ! is_array( $managed ) ) {
 			?>
-			<p class="gsm-no-plugins-msg"><?php esc_html_e( 'Nenhum plugin gerenciado ainda. Acesse a aba "Adicionar Plugin" para começar.', 'github-sync-manager' ); ?></p>
+			<p class="gsm-no-plugins-msg"><?php esc_html_e( 'Nenhum plugin gerenciado ainda. Acesse a aba "Adicionar Plugin" para começar.', 'sync-manager-for-github' ); ?></p>
 			<?php
 			return;
 		}
@@ -390,20 +390,20 @@ class GSM_Admin {
 
 			switch ( $status ) {
 				case 'atualizado':
-					$status_label = __( 'Atualizado', 'github-sync-manager' );
+					$status_label = __( 'Atualizado', 'sync-manager-for-github' );
 					$status_class = 'gsm-status-updated';
 					break;
 				case 'atualizacao_disponivel':
-					$status_label = __( 'Atualização disponível', 'github-sync-manager' );
+					$status_label = __( 'Atualização disponível', 'sync-manager-for-github' );
 					$status_class = 'gsm-status-update';
 					break;
 				case 'indisponivel':
-					$status_label = __( 'Indisponível', 'github-sync-manager' );
+					$status_label = __( 'Indisponível', 'sync-manager-for-github' );
 					$status_class = 'gsm-status-unavailable';
 					break;
 				case 'erro':
 				default:
-					$status_label = __( 'Erro', 'github-sync-manager' );
+					$status_label = __( 'Erro', 'sync-manager-for-github' );
 					$status_class = 'gsm-status-error';
 					break;
 			}
@@ -426,28 +426,28 @@ class GSM_Admin {
 				</div>
 
 				<div class="gsm-plugin-versions">
-					<span><?php esc_html_e( 'Instalado:', 'github-sync-manager' ); ?> <code><?php echo esc_html( $installed_version ); ?></code></span>
+					<span><?php esc_html_e( 'Instalado:', 'sync-manager-for-github' ); ?> <code><?php echo esc_html( $installed_version ); ?></code></span>
 					<?php if ( $latest_version !== $installed_version ) : ?>
 						<span class="gsm-versions-arrow">→</span>
-						<span><?php esc_html_e( 'Disponível:', 'github-sync-manager' ); ?> <code><?php echo esc_html( $latest_version ); ?></code></span>
+						<span><?php esc_html_e( 'Disponível:', 'sync-manager-for-github' ); ?> <code><?php echo esc_html( $latest_version ); ?></code></span>
 					<?php endif; ?>
 				</div>
 
 				<?php if ( ! empty( $data['is_branch'] ) || ! empty( $data['subfolder'] ) ) : ?>
 				<div class="gsm-plugin-card-tags">
 					<?php if ( ! empty( $data['is_branch'] ) ) : ?>
-						<span class="gsm-branch-label" title="<?php esc_attr_e( 'Instalado diretamente de uma branch, sem releases no GitHub.', 'github-sync-manager' ); ?>">
+						<span class="gsm-branch-label" title="<?php esc_attr_e( 'Instalado diretamente de uma branch, sem releases no GitHub.', 'sync-manager-for-github' ); ?>">
 							<?php
 							/* translators: %s: branch name */
-							printf( esc_html__( 'Ramo: %s', 'github-sync-manager' ), esc_html( $data['branch_name'] ) );
+							printf( esc_html__( 'Ramo: %s', 'sync-manager-for-github' ), esc_html( $data['branch_name'] ) );
 							?>
 						</span>
 					<?php endif; ?>
 					<?php if ( ! empty( $data['subfolder'] ) ) : ?>
-						<span class="gsm-subfolder-label" title="<?php esc_attr_e( 'Pasta base configurada para este plugin.', 'github-sync-manager' ); ?>">
+						<span class="gsm-subfolder-label" title="<?php esc_attr_e( 'Pasta base configurada para este plugin.', 'sync-manager-for-github' ); ?>">
 							<?php
 							/* translators: %s: subfolder path */
-							printf( esc_html__( 'Pasta: %s', 'github-sync-manager' ), esc_html( $data['subfolder'] ) );
+							printf( esc_html__( 'Pasta: %s', 'sync-manager-for-github' ), esc_html( $data['subfolder'] ) );
 							?>
 						</span>
 					<?php endif; ?>
@@ -459,7 +459,7 @@ class GSM_Admin {
 					<i data-lucide="clock" class="gsm-icon"></i>
 					<?php
 					/* translators: %s: date and time */
-					printf( esc_html__( 'Última verificação: %s', 'github-sync-manager' ), esc_html( date_i18n( 'd/m/Y H:i', strtotime( $last_checked ) ) ) );
+					printf( esc_html__( 'Última verificação: %s', 'sync-manager-for-github' ), esc_html( date_i18n( 'd/m/Y H:i', strtotime( $last_checked ) ) ) );
 					?>
 				</p>
 				<?php endif; ?>
@@ -467,16 +467,16 @@ class GSM_Admin {
 				<div class="gsm-plugin-card-actions">
 					<button type="button" class="button button-primary gsm-btn-force-update" data-repo="<?php echo esc_attr( $repo ); ?>">
 						<i data-lucide="cloud-upload" class="gsm-icon"></i>
-						<?php esc_html_e( 'Atualizar', 'github-sync-manager' ); ?>
+						<?php esc_html_e( 'Atualizar', 'sync-manager-for-github' ); ?>
 					</button>
 					<?php if ( ! empty( $data['is_branch'] ) ) : ?>
-						<button type="button" class="button button-small gsm-btn-copy-prompt" data-repo="<?php echo esc_attr( $repo ); ?>" data-version="<?php echo esc_attr( $installed_version ); ?>" title="<?php esc_attr_e( 'Copiar prompt de IA para criar releases', 'github-sync-manager' ); ?>">
+						<button type="button" class="button button-small gsm-btn-copy-prompt" data-repo="<?php echo esc_attr( $repo ); ?>" data-version="<?php echo esc_attr( $installed_version ); ?>" title="<?php esc_attr_e( 'Copiar prompt de IA para criar releases', 'sync-manager-for-github' ); ?>">
 							<i data-lucide="clipboard" class="gsm-icon"></i>
-							<?php esc_html_e( 'Prompt Release', 'github-sync-manager' ); ?>
+							<?php esc_html_e( 'Prompt Release', 'sync-manager-for-github' ); ?>
 						</button>
 					<?php endif; ?>
 					<button type="button" class="button button-link-delete gsm-btn-remove" data-repo="<?php echo esc_attr( $repo ); ?>">
-						<?php esc_html_e( 'Parar de gerenciar', 'github-sync-manager' ); ?>
+						<?php esc_html_e( 'Parar de gerenciar', 'sync-manager-for-github' ); ?>
 					</button>
 				</div>
 			</div>
@@ -491,7 +491,7 @@ class GSM_Admin {
 		$logs = get_option( GSM_Manager::OPTION_LOGS, array() );
 		if ( empty( $logs ) || ! is_array( $logs ) ) {
 			?>
-			<p class="gsm-no-logs-msg"><?php esc_html_e( 'Nenhuma atividade registrada ainda.', 'github-sync-manager' ); ?></p>
+			<p class="gsm-no-logs-msg"><?php esc_html_e( 'Nenhuma atividade registrada ainda.', 'sync-manager-for-github' ); ?></p>
 			<?php
 			return;
 		}
@@ -500,11 +500,11 @@ class GSM_Admin {
 		<table class="wp-list-table widefat fixed striped table-view-list gsm-logs-table">
 			<thead>
 				<tr>
-					<th style="width: 160px;"><?php esc_html_e( 'Data/Hora', 'github-sync-manager' ); ?></th>
-					<th style="width: 200px;"><?php esc_html_e( 'Repositório', 'github-sync-manager' ); ?></th>
-					<th style="width: 140px;"><?php esc_html_e( 'Ação', 'github-sync-manager' ); ?></th>
-					<th style="width: 110px;"><?php esc_html_e( 'Resultado', 'github-sync-manager' ); ?></th>
-					<th><?php esc_html_e( 'Mensagem', 'github-sync-manager' ); ?></th>
+					<th style="width: 160px;"><?php esc_html_e( 'Data/Hora', 'sync-manager-for-github' ); ?></th>
+					<th style="width: 200px;"><?php esc_html_e( 'Repositório', 'sync-manager-for-github' ); ?></th>
+					<th style="width: 140px;"><?php esc_html_e( 'Ação', 'sync-manager-for-github' ); ?></th>
+					<th style="width: 110px;"><?php esc_html_e( 'Resultado', 'sync-manager-for-github' ); ?></th>
+					<th><?php esc_html_e( 'Mensagem', 'sync-manager-for-github' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -514,31 +514,31 @@ class GSM_Admin {
 					// Translate result label
 					$result_label = $log['result'];
 					if ( 'sucesso' === $log['result'] ) {
-						$result_label = __( 'Sucesso', 'github-sync-manager' );
+						$result_label = __( 'Sucesso', 'sync-manager-for-github' );
 					} elseif ( 'erro' === $log['result'] ) {
-						$result_label = __( 'Erro', 'github-sync-manager' );
+						$result_label = __( 'Erro', 'sync-manager-for-github' );
 					}
 
 					// Translate action label
 					$action_label = strtoupper( $log['action'] );
 					switch ( $log['action'] ) {
 						case 'ativacao':
-							$action_label = __( 'Ativação', 'github-sync-manager' );
+							$action_label = __( 'Ativação', 'sync-manager-for-github' );
 							break;
 						case 'conexao':
-							$action_label = __( 'Conexão', 'github-sync-manager' );
+							$action_label = __( 'Conexão', 'sync-manager-for-github' );
 							break;
 						case 'desconexao':
-							$action_label = __( 'Desconexão', 'github-sync-manager' );
+							$action_label = __( 'Desconexão', 'sync-manager-for-github' );
 							break;
 						case 'instalacao':
-							$action_label = __( 'Instalação', 'github-sync-manager' );
+							$action_label = __( 'Instalação', 'sync-manager-for-github' );
 							break;
 						case 'atualizacao':
-							$action_label = __( 'Atualização', 'github-sync-manager' );
+							$action_label = __( 'Atualização', 'sync-manager-for-github' );
 							break;
 						case 'cron_check':
-							$action_label = __( 'Cron Check', 'github-sync-manager' );
+							$action_label = __( 'Cron Check', 'sync-manager-for-github' );
 							break;
 					}
 					?>
@@ -562,12 +562,12 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		$raw_token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
 		if ( empty( $raw_token ) ) {
-			wp_send_json_error( array( 'message' => __( 'O token está vazio.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'O token está vazio.', 'sync-manager-for-github' ) ) );
 		}
 
 		// Encrypt and test connection
@@ -588,10 +588,10 @@ class GSM_Admin {
 		update_option( GSM_Manager::OPTION_USER, $validation ); // Autoload = yes for general connected status is fine since it's small
 
 		/* translators: %s: GitHub username */
-		GSM_Manager::log( 'sistema', 'conexao', 'sucesso', sprintf( __( 'Conta conectada com sucesso (@%s).', 'github-sync-manager' ), $validation['username'] ) );
+		GSM_Manager::log( 'sistema', 'conexao', 'sucesso', sprintf( __( 'Conta conectada com sucesso (@%s).', 'sync-manager-for-github' ), $validation['username'] ) );
 
 		wp_send_json_success( array(
-			'message'    => __( 'Conectado com sucesso!', 'github-sync-manager' ),
+			'message'    => __( 'Conectado com sucesso!', 'sync-manager-for-github' ),
 			'username'   => $validation['username'],
 			'avatar_url' => $validation['avatar_url'],
 		) );
@@ -604,16 +604,16 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		// Delete authentication options
 		delete_option( GSM_Manager::OPTION_TOKEN );
 		delete_option( GSM_Manager::OPTION_USER );
 
-		GSM_Manager::log( 'sistema', 'desconexao', 'sucesso', __( 'Conta GitHub desconectada. Os plugins não receberão atualizações até que uma nova conta seja reconectada.', 'github-sync-manager' ) );
+		GSM_Manager::log( 'sistema', 'desconexao', 'sucesso', __( 'Conta GitHub desconectada. Os plugins não receberão atualizações até que uma nova conta seja reconectada.', 'sync-manager-for-github' ) );
 
-		wp_send_json_success( array( 'message' => __( 'Conta desconectada com sucesso!', 'github-sync-manager' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Conta desconectada com sucesso!', 'sync-manager-for-github' ) ) );
 	}
 
 	/**
@@ -623,13 +623,13 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		// Connect API
 		$token = get_option( GSM_Manager::OPTION_TOKEN );
 		if ( empty( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'sync-manager-for-github' ) ) );
 		}
 
 		$decrypted = GSM_Encryption::decrypt( $token );
@@ -662,7 +662,7 @@ class GSM_Admin {
 		} elseif ( 'install' === $action_type ) {
 			$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
 			if ( empty( $repo_slug ) ) {
-				wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'sync-manager-for-github' ) ) );
 			}
 
 			$selected_ref       = isset( $_POST['ref'] ) ? sanitize_text_field( wp_unslash( $_POST['ref'] ) ) : '';
@@ -680,13 +680,13 @@ class GSM_Admin {
 			}
 
 			if ( isset( $managed_plugins[ $repo_slug ] ) ) {
-				wp_send_json_error( array( 'message' => __( 'Este repositório já está sendo gerenciado.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Este repositório já está sendo gerenciado.', 'sync-manager-for-github' ) ) );
 			}
 
 			// Explode owner and repo
 			$parts = explode( '/', $repo_slug );
 			if ( count( $parts ) !== 2 ) {
-				wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'sync-manager-for-github' ) ) );
 			}
 			$owner = $parts[0];
 			$repo  = $parts[1];
@@ -745,7 +745,7 @@ class GSM_Admin {
 			}
 
 			if ( empty( $target_release ) ) {
-				wp_send_json_error( array( 'message' => __( 'Nenhuma release ou branch disponível encontrada.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Nenhuma release ou branch disponível encontrada.', 'sync-manager-for-github' ) ) );
 			}
 
 			$package_url = '';
@@ -756,7 +756,7 @@ class GSM_Admin {
 			}
 
 			if ( empty( $package_url ) ) {
-				wp_send_json_error( array( 'message' => __( 'Nenhum ZIP de pacote de download encontrado.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Nenhum ZIP de pacote de download encontrado.', 'sync-manager-for-github' ) ) );
 			}
 
 			// Native programmatic installation via Plugin_Upgrader
@@ -799,7 +799,7 @@ class GSM_Admin {
 					error_log( 'GSM Install Failed. Repo: ' . $repo_slug . ' | Skin: ' . implode( ' | ', $skin_messages ) );
 				}
 				wp_send_json_error( array(
-					'message' => __( 'A instalação do plugin falhou. Se o problema persistir, adicione define(\'FS_METHOD\', \'direct\'); ao wp-config.php antes do require_once ABSPATH.', 'github-sync-manager' ) . ( $detail ? ' ' . $detail : '' ),
+					'message' => __( 'A instalação do plugin falhou. Se o problema persistir, adicione define(\'FS_METHOD\', \'direct\'); ao wp-config.php antes do require_once ABSPATH.', 'sync-manager-for-github' ) . ( $detail ? ' ' . $detail : '' ),
 				) );
 			}
 
@@ -837,7 +837,7 @@ class GSM_Admin {
 				$latest_folder = '';
 				foreach ( $folders_dir as $f ) {
 					$mtime = filemtime( $f );
-					if ( $mtime > $latest_time && basename( $f ) !== 'github-sync-manager' ) {
+					if ( $mtime > $latest_time && basename( $f ) !== 'sync-manager-for-github' ) {
 						$latest_time = $mtime;
 						$latest_folder = basename( $f );
 					}
@@ -856,7 +856,7 @@ class GSM_Admin {
 			}
 
 			if ( empty( $installed_plugin_file ) ) {
-				wp_send_json_error( array( 'message' => __( 'O plugin foi extraído, mas o WordPress não conseguiu indexar o arquivo principal. Ative-o manualmente no painel Plugins.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'O plugin foi extraído, mas o WordPress não conseguiu indexar o arquivo principal. Ative-o manualmente no painel Plugins.', 'sync-manager-for-github' ) ) );
 			}
 
 			$is_branch   = ! empty( $target_release['is_branch'] );
@@ -881,20 +881,20 @@ class GSM_Admin {
 				'instalacao',
 				'sucesso',
 				/* translators: %s: version number */
-				sprintf( __( 'Plugin instalado com sucesso (Versão %s).', 'github-sync-manager' ), $latest_version )
+				sprintf( __( 'Plugin instalado com sucesso (Versão %s).', 'sync-manager-for-github' ), $latest_version )
 			);
 
 			$activate_url = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $installed_plugin_file ), 'activate-plugin_' . $installed_plugin_file );
 
 			wp_send_json_success( array(
-				'message'      => __( 'Plugin instalado com sucesso!', 'github-sync-manager' ),
+				'message'      => __( 'Plugin instalado com sucesso!', 'sync-manager-for-github' ),
 				'plugin_name'  => get_plugin_data( WP_PLUGIN_DIR . '/' . $installed_plugin_file )['Name'],
 				'version'      => $latest_version,
 				'activate_url' => admin_url( $activate_url ),
 			) );
 		}
 
-		wp_send_json_error( array( 'message' => __( 'Ação inválida.', 'github-sync-manager' ) ) );
+		wp_send_json_error( array( 'message' => __( 'Ação inválida.', 'sync-manager-for-github' ) ) );
 	}
 
 	/**
@@ -904,12 +904,12 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
 		if ( empty( $repo_slug ) ) {
-			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'sync-manager-for-github' ) ) );
 		}
 
 		$managed = get_option( GSM_Manager::OPTION_PLUGINS, array() );
@@ -927,12 +927,12 @@ class GSM_Admin {
 				GSM_GitHub_API::delete_releases_cache( $parts[0], $parts[1] );
 			}
 
-			GSM_Manager::log( $repo_slug, 'parar_gerenciar', 'sucesso', __( 'Parou de gerenciar o repositório. O plugin continua instalado no WordPress.', 'github-sync-manager' ) );
+			GSM_Manager::log( $repo_slug, 'parar_gerenciar', 'sucesso', __( 'Parou de gerenciar o repositório. O plugin continua instalado no WordPress.', 'sync-manager-for-github' ) );
 
-			wp_send_json_success( array( 'message' => __( 'Gerenciamento removido com sucesso!', 'github-sync-manager' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Gerenciamento removido com sucesso!', 'sync-manager-for-github' ) ) );
 		}
 
-		wp_send_json_error( array( 'message' => __( 'Repositório não encontrado.', 'github-sync-manager' ) ) );
+		wp_send_json_error( array( 'message' => __( 'Repositório não encontrado.', 'sync-manager-for-github' ) ) );
 	}
 
 	/**
@@ -942,12 +942,12 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		$token = get_option( GSM_Manager::OPTION_TOKEN );
 		if ( empty( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'sync-manager-for-github' ) ) );
 		}
 
 		$decrypted = GSM_Encryption::decrypt( $token );
@@ -957,7 +957,7 @@ class GSM_Admin {
 
 		$managed = get_option( GSM_Manager::OPTION_PLUGINS, array() );
 		if ( empty( $managed ) || ! is_array( $managed ) ) {
-			wp_send_json_success( array( 'message' => __( 'Nenhum plugin gerenciado para verificar.', 'github-sync-manager' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Nenhum plugin gerenciado para verificar.', 'sync-manager-for-github' ) ) );
 		}
 
 		$api = new GSM_GitHub_API( $decrypted );
@@ -971,7 +971,7 @@ class GSM_Admin {
 			$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_file;
 			if ( ! file_exists( $plugin_path ) ) {
 				$managed[ $repo ]['status']        = 'indisponivel';
-				$managed[ $repo ]['error_message'] = __( 'Diretório ou arquivo principal do plugin não encontrado localmente.', 'github-sync-manager' );
+				$managed[ $repo ]['error_message'] = __( 'Diretório ou arquivo principal do plugin não encontrado localmente.', 'sync-manager-for-github' );
 				continue;
 			}
 
@@ -999,7 +999,7 @@ class GSM_Admin {
 
 			if ( empty( $releases ) ) {
 				$managed[ $repo ]['status']        = 'erro';
-				$managed[ $repo ]['error_message'] = __( 'Repositório não possui releases publicadas.', 'github-sync-manager' );
+				$managed[ $repo ]['error_message'] = __( 'Repositório não possui releases publicadas.', 'sync-manager-for-github' );
 				continue;
 			}
 
@@ -1023,7 +1023,7 @@ class GSM_Admin {
 		// Clear core update cache transient to force WordPress to recognize updates immediately in standard screen
 		delete_site_transient( 'update_plugins' );
 
-		GSM_Manager::log( 'sistema', 'verificacao_manual', 'sucesso', __( 'Verificação manual executada para todos os plugins gerenciados.', 'github-sync-manager' ) );
+		GSM_Manager::log( 'sistema', 'verificacao_manual', 'sucesso', __( 'Verificação manual executada para todos os plugins gerenciados.', 'sync-manager-for-github' ) );
 
 		// Capture rendered HTML of table body and logs
 		ob_start();
@@ -1035,7 +1035,7 @@ class GSM_Admin {
 		$logs_html = ob_get_clean();
 
 		wp_send_json_success( array(
-			'message'    => __( 'Verificação concluída!', 'github-sync-manager' ),
+			'message'    => __( 'Verificação concluída!', 'sync-manager-for-github' ),
 			'table_html' => $table_html,
 			'logs_html'  => $logs_html,
 		) );
@@ -1048,17 +1048,17 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
 		if ( empty( $repo_slug ) ) {
-			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'sync-manager-for-github' ) ) );
 		}
 
 		$token = get_option( GSM_Manager::OPTION_TOKEN );
 		if ( empty( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Token do GitHub não configurado.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Token do GitHub não configurado.', 'sync-manager-for-github' ) ) );
 		}
 
 		$security_check = GSM_Encryption::check_security_keys();
@@ -1073,7 +1073,7 @@ class GSM_Admin {
 
 		$managed = get_option( GSM_Manager::OPTION_PLUGINS, array() );
 		if ( ! isset( $managed[ $repo_slug ] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Plugin não encontrado na lista gerenciada.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Plugin não encontrado na lista gerenciada.', 'sync-manager-for-github' ) ) );
 		}
 
 		$plugin_data        = $managed[ $repo_slug ];
@@ -1082,7 +1082,7 @@ class GSM_Admin {
 
 		$parts = explode( '/', $repo_slug );
 		if ( count( $parts ) !== 2 ) {
-			wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'sync-manager-for-github' ) ) );
 		}
 		$owner = $parts[0];
 		$repo  = $parts[1];
@@ -1105,7 +1105,7 @@ class GSM_Admin {
 				wp_send_json_error( array( 'message' => $releases->get_error_message() ) );
 			}
 			if ( empty( $releases ) ) {
-				wp_send_json_error( array( 'message' => __( 'Nenhuma release encontrada no repositório.', 'github-sync-manager' ) ) );
+				wp_send_json_error( array( 'message' => __( 'Nenhuma release encontrada no repositório.', 'sync-manager-for-github' ) ) );
 			}
 			$target_release = $releases[0];
 		}
@@ -1118,7 +1118,7 @@ class GSM_Admin {
 		}
 
 		if ( empty( $package_url ) ) {
-			wp_send_json_error( array( 'message' => __( 'Nenhum pacote ZIP encontrado para download.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Nenhum pacote ZIP encontrado para download.', 'sync-manager-for-github' ) ) );
 		}
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -1146,7 +1146,7 @@ class GSM_Admin {
 		}
 
 		if ( ! $result ) {
-			wp_send_json_error( array( 'message' => __( 'A reinstalação falhou. Tente novamente ou verifique as permissões do servidor.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'A reinstalação falhou. Tente novamente ou verifique as permissões do servidor.', 'sync-manager-for-github' ) ) );
 		}
 
 		$latest_version = ltrim( $target_release['tag_name'], 'vV' );
@@ -1162,7 +1162,7 @@ class GSM_Admin {
 			'atualizacao',
 			'sucesso',
 			/* translators: %s: version number */
-			sprintf( __( 'Plugin reinstalado com sucesso via força (Versão %s).', 'github-sync-manager' ), $latest_version )
+			sprintf( __( 'Plugin reinstalado com sucesso via força (Versão %s).', 'sync-manager-for-github' ), $latest_version )
 		);
 
 		ob_start();
@@ -1175,7 +1175,7 @@ class GSM_Admin {
 
 		wp_send_json_success( array(
 			/* translators: %s: version number */
-			'message'    => sprintf( __( 'Plugin reinstalado com sucesso! (Versão %s)', 'github-sync-manager' ), $latest_version ),
+			'message'    => sprintf( __( 'Plugin reinstalado com sucesso! (Versão %s)', 'sync-manager-for-github' ), $latest_version ),
 			'table_html' => $cards_html,
 			'logs_html'  => $logs_html,
 		) );
@@ -1188,13 +1188,13 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Você não tem permissão para realizar esta ação.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Você não tem permissão para realizar esta ação.', 'sync-manager-for-github' ) ) );
 		}
 
 		$locale = isset( $_POST['locale'] ) ? sanitize_text_field( wp_unslash( $_POST['locale'] ) ) : 'pt_BR';
 
 		if ( ! in_array( $locale, array( 'pt_BR', 'en_US', 'es_ES' ), true ) ) {
-			wp_send_json_error( array( 'message' => __( 'Idioma inválido.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Idioma inválido.', 'sync-manager-for-github' ) ) );
 		}
 
 		update_option( 'gsm_locale', $locale );
@@ -1202,7 +1202,7 @@ class GSM_Admin {
 		// Clear core update cache transient to reload options
 		delete_site_transient( 'update_plugins' );
 
-		wp_send_json_success( array( 'message' => __( 'Idioma atualizado com sucesso!', 'github-sync-manager' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Idioma atualizado com sucesso!', 'sync-manager-for-github' ) ) );
 	}
 
 	/**
@@ -1212,12 +1212,12 @@ class GSM_Admin {
 		check_ajax_referer( 'gsm_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'sync-manager-for-github' ) ) );
 		}
 
 		$token = get_option( GSM_Manager::OPTION_TOKEN );
 		if ( empty( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Token ausente.', 'sync-manager-for-github' ) ) );
 		}
 
 		$decrypted = GSM_Encryption::decrypt( $token );
@@ -1227,13 +1227,13 @@ class GSM_Admin {
 
 		$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
 		if ( empty( $repo_slug ) ) {
-			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'sync-manager-for-github' ) ) );
 		}
 
 		// Explode owner and repo
 		$parts = explode( '/', $repo_slug );
 		if ( count( $parts ) !== 2 ) {
-			wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'github-sync-manager' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Slug de repositório inválido.', 'sync-manager-for-github' ) ) );
 		}
 		$owner = $parts[0];
 		$repo  = $parts[1];
@@ -1295,7 +1295,7 @@ class GSM_Admin {
 		if ( ! $has_default_branch ) {
 			$sources[] = array(
 				/* translators: %s: branch name */
-				'name'        => sprintf( __( 'Ramo: %s', 'github-sync-manager' ), $default_branch ),
+				'name'        => sprintf( __( 'Ramo: %s', 'sync-manager-for-github' ), $default_branch ),
 				'ref'         => $default_branch,
 				'is_branch'   => true,
 				'zipball_url' => sprintf( '%s/repos/%s/%s/zipball/%s', GSM_GitHub_API::API_URL, rawurlencode( $owner ), rawurlencode( $repo ), rawurlencode( $default_branch ) ),

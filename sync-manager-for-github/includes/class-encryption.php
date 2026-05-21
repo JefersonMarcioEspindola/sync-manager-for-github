@@ -30,7 +30,7 @@ class GSM_Encryption {
 		if ( ! defined( 'AUTH_KEY' ) || ! defined( 'SECURE_AUTH_KEY' ) ) {
 			return new WP_Error(
 				'gsm_security_incomplete',
-				__( 'Configuração de segurança do WordPress incompleta. Defina AUTH_KEY e SECURE_AUTH_KEY no wp-config.php antes de conectar uma conta GitHub.', 'github-sync-manager' )
+				__( 'Configuração de segurança do WordPress incompleta. Defina AUTH_KEY e SECURE_AUTH_KEY no wp-config.php antes de conectar uma conta GitHub.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -41,7 +41,7 @@ class GSM_Encryption {
 			self::WP_DEFAULT_PHRASE === $auth_key || self::WP_DEFAULT_PHRASE === $secure_auth_key ) {
 			return new WP_Error(
 				'gsm_security_default_keys',
-				__( 'Configuração de segurança do WordPress incompleta. Defina AUTH_KEY e SECURE_AUTH_KEY no wp-config.php antes de conectar uma conta GitHub.', 'github-sync-manager' )
+				__( 'Configuração de segurança do WordPress incompleta. Defina AUTH_KEY e SECURE_AUTH_KEY no wp-config.php antes de conectar uma conta GitHub.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -74,7 +74,7 @@ class GSM_Encryption {
 		if ( ! function_exists( 'openssl_encrypt' ) ) {
 			return new WP_Error(
 				'gsm_missing_openssl',
-				__( 'A extensão PHP openssl não está disponível neste servidor.', 'github-sync-manager' )
+				__( 'A extensão PHP openssl não está disponível neste servidor.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -90,7 +90,7 @@ class GSM_Encryption {
 		if ( false === $ciphertext ) {
 			return new WP_Error(
 				'gsm_encryption_failed',
-				__( 'Falha na criptografia do token.', 'github-sync-manager' )
+				__( 'Falha na criptografia do token.', 'sync-manager-for-github' )
 			);
 		}
 
@@ -118,18 +118,18 @@ class GSM_Encryption {
 		if ( ! function_exists( 'openssl_decrypt' ) ) {
 			return new WP_Error(
 				'gsm_missing_openssl',
-				__( 'A extensão PHP openssl não está disponível neste servidor.', 'github-sync-manager' )
+				__( 'A extensão PHP openssl não está disponível neste servidor.', 'sync-manager-for-github' )
 			);
 		}
 
 		$decoded_payload = base64_decode( $encrypted_str, true );
 		if ( false === $decoded_payload ) {
-			return new WP_Error( 'gsm_decryption_invalid_base64', __( 'Dados criptografados inválidos (formato incorreto).', 'github-sync-manager' ) );
+			return new WP_Error( 'gsm_decryption_invalid_base64', __( 'Dados criptografados inválidos (formato incorreto).', 'sync-manager-for-github' ) );
 		}
 
 		$payload = json_decode( $decoded_payload, true );
 		if ( ! is_array( $payload ) || empty( $payload['iv'] ) || empty( $payload['tag'] ) || empty( $payload['ciphertext'] ) ) {
-			return new WP_Error( 'gsm_decryption_invalid_format', __( 'Formato de carga criptografada inválido.', 'github-sync-manager' ) );
+			return new WP_Error( 'gsm_decryption_invalid_format', __( 'Formato de carga criptografada inválido.', 'sync-manager-for-github' ) );
 		}
 
 		$method = 'aes-256-gcm';
@@ -139,13 +139,13 @@ class GSM_Encryption {
 		$cipher = base64_decode( $payload['ciphertext'], true );
 
 		if ( false === $iv || false === $tag || false === $cipher ) {
-			return new WP_Error( 'gsm_decryption_decode_failed', __( 'Erro ao decodificar componentes da criptografia.', 'github-sync-manager' ) );
+			return new WP_Error( 'gsm_decryption_decode_failed', __( 'Erro ao decodificar componentes da criptografia.', 'sync-manager-for-github' ) );
 		}
 
 		$plain_text = openssl_decrypt( $cipher, $method, $key, OPENSSL_RAW_DATA, $iv, $tag );
 
 		if ( false === $plain_text ) {
-			return new WP_Error( 'gsm_decryption_failed', __( 'Falha na descriptografia do token (chave incorreta ou integridade violada).', 'github-sync-manager' ) );
+			return new WP_Error( 'gsm_decryption_failed', __( 'Falha na descriptografia do token (chave incorreta ou integridade violada).', 'sync-manager-for-github' ) );
 		}
 
 		return $plain_text;
