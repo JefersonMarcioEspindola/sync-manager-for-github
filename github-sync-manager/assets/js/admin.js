@@ -333,10 +333,11 @@ jQuery(document).ready(function($) {
 						$.each(data.sources, function(idx, src) {
 							var isSelected = (ref && src.ref === ref) || (!ref && (src.ref === data.default_branch || idx === 0));
 							var selectedAttr = isSelected ? ' selected' : '';
-							bodyHtml += '<option value="' + src.ref + '"' + selectedAttr + '>' + src.name + '</option>';
+							var prefix = src.is_branch ? '🌿 ' : '🏷️ ';
+							bodyHtml += '<option value="' + src.ref + '"' + selectedAttr + '>' + prefix + src.name + '</option>';
 						});
 					} else {
-						bodyHtml += '<option value="' + data.default_branch + '" selected>' + data.default_branch + '</option>';
+						bodyHtml += '<option value="' + data.default_branch + '" selected>🌿 ' + data.default_branch + '</option>';
 					}
 					bodyHtml += '    </select>';
 					bodyHtml += '  </div>';
@@ -344,14 +345,18 @@ jQuery(document).ready(function($) {
 					bodyHtml += '  <div class="gsm-modal-field">';
 					bodyHtml += '    <label for="gsm-modal-subfolder">' + gsm_ajax.texts.select_folder + '</label>';
 					bodyHtml += '    <select id="gsm-modal-subfolder">';
-					bodyHtml += '      <option value=""' + (data.default_path === '' ? ' selected' : '') + '>' + gsm_ajax.texts.root_folder + '</option>';
+					bodyHtml += '      <option value=""' + (data.default_path === '' ? ' selected' : '') + '>📁 ' + gsm_ajax.texts.root_folder + '</option>';
 					if (data.folders && data.folders.length > 0) {
 						$.each(data.folders, function(idx, folder) {
 							var selectedAttr = (data.default_path === folder) ? ' selected' : '';
-							bodyHtml += '<option value="' + folder + '"' + selectedAttr + '>' + folder + '</option>';
+							bodyHtml += '<option value="' + folder + '"' + selectedAttr + '>📁 ' + folder + '</option>';
 						});
 					}
 					bodyHtml += '    </select>';
+					bodyHtml += '    <div class="gsm-info-box">';
+					bodyHtml += '      <span class="dashicons dashicons-info"></span>';
+					bodyHtml += '      <p class="gsm-field-description">' + gsm_ajax.texts.select_folder_desc + '</p>';
+					bodyHtml += '    </div>';
 					bodyHtml += '  </div>';
 
 					bodyHtml += '</div>';

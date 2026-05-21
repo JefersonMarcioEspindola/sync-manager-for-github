@@ -116,6 +116,7 @@ class GSM_Admin {
 				'advanced_options'      => __( 'Opções Avançadas', 'github-sync-manager' ),
 				'select_source'         => __( 'Origem (Release ou Ramo):', 'github-sync-manager' ),
 				'select_folder'         => __( 'Pasta Base do Plugin:', 'github-sync-manager' ),
+				'select_folder_desc'    => __( 'Indique a subpasta do repositório onde os arquivos do plugin de fato residem (a pasta que contém o arquivo PHP principal). O gerenciador extrairá apenas essa pasta, descartando arquivos externos. Isso permite sincronizar diretamente o código-fonte, eliminando a necessidade de gerar arquivos ZIP ou criar releases manuais no GitHub para atualizar o plugin!', 'github-sync-manager' ),
 				'root_folder'           => __( 'Pasta Raiz', 'github-sync-manager' ),
 				'close_btn'             => __( 'Fechar', 'github-sync-manager' ),
 			),

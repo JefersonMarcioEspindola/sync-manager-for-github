@@ -1,59 +1,73 @@
 /**
  * GitHub Sync Manager Admin Styling
- * Integrates natively with WordPress Core Admin Styles
+ * Color Palette: #2859FF (primary), #557CFF (hover), #050507 (text), #92939C (muted), #C8C9D3 (border), #EEEFF1 (surface), #FFFFFF (bg)
  */
+
+:root {
+	--gsm-primary:      #2859FF;
+	--gsm-primary-hov:  #557CFF;
+	--gsm-text:         #050507;
+	--gsm-muted:        #92939C;
+	--gsm-border:       #C8C9D3;
+	--gsm-surface:      #EEEFF1;
+	--gsm-bg:           #FFFFFF;
+}
 
 .gsm-wrap {
 	margin: 20px 20px 0 0;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-/* Header Panel */
+/* ========================
+   Header Panel
+   ======================== */
 .gsm-header-panel {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	background: #fff;
+	background: var(--gsm-bg);
 	padding: 15px 20px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	border: 1px solid var(--gsm-border);
+	border-radius: 8px;
 	margin-bottom: 20px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 1px 3px rgba(5, 5, 7, 0.06);
 }
 
 .gsm-title {
 	margin: 0 !important;
 	font-size: 23px;
-	font-weight: 400;
+	font-weight: 600;
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	color: #1d2327;
+	color: var(--gsm-text);
 }
 
 .gsm-title .dashicons {
 	font-size: 26px;
 	width: 26px;
 	height: 26px;
-	color: #2271b1;
+	color: var(--gsm-primary);
 }
 
-/* User Badge */
+/* ========================
+   User Badge
+   ======================== */
 .gsm-user-badge {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	background: #f6f7f7;
+	background: var(--gsm-surface);
 	padding: 8px 15px;
 	border-radius: 30px;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--gsm-border);
 }
 
 .gsm-user-avatar {
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	border: 1px solid #c3c4c7;
+	border: 2px solid var(--gsm-primary);
 }
 
 .gsm-user-info {
@@ -64,7 +78,7 @@
 .gsm-username {
 	font-weight: 600;
 	font-size: 13px;
-	color: #1d2327;
+	color: var(--gsm-text);
 }
 
 .gsm-pulse-badge {
@@ -101,13 +115,15 @@
 	}
 }
 
-/* Cards & Layout */
+/* ========================
+   Cards & Layout
+   ======================== */
 .gsm-card {
-	background: #fff;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	background: var(--gsm-bg);
+	border: 1px solid var(--gsm-border);
+	border-radius: 8px;
 	padding: 20px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 1px 3px rgba(5, 5, 7, 0.06);
 	margin-bottom: 20px;
 }
 
@@ -120,19 +136,21 @@
 .gsm-login-card h2 {
 	margin-top: 0;
 	font-size: 20px;
-	font-weight: 400;
+	font-weight: 600;
+	color: var(--gsm-text);
 }
 
 .gsm-help-box {
-	background: #f0f6fc;
-	border-left: 4px solid #2271b1;
+	background: #f0f4ff;
+	border-left: 4px solid var(--gsm-primary);
 	padding: 12px 18px;
 	margin: 20px 0;
-	border-radius: 0 4px 4px 0;
+	border-radius: 0 6px 6px 0;
 }
 
 .gsm-help-box p {
 	margin: 0 0 10px 0;
+	color: var(--gsm-text);
 }
 
 .gsm-help-box ul {
@@ -142,6 +160,7 @@
 
 .gsm-help-box li {
 	margin-bottom: 8px;
+	color: var(--gsm-text);
 }
 
 .gsm-form-group {
@@ -152,6 +171,8 @@
 	display: block;
 	margin-bottom: 8px;
 	font-size: 14px;
+	color: var(--gsm-text);
+	font-weight: 500;
 }
 
 .gsm-form-group input {
@@ -161,6 +182,17 @@
 	padding: 8px 12px !important;
 	font-size: 14px;
 	height: auto !important;
+	border: 1px solid var(--gsm-border) !important;
+	border-radius: 6px !important;
+	color: var(--gsm-text) !important;
+	background: var(--gsm-bg) !important;
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gsm-form-group input:focus {
+	border-color: var(--gsm-primary) !important;
+	box-shadow: 0 0 0 3px rgba(40, 89, 255, 0.12) !important;
+	outline: none !important;
 }
 
 .gsm-submit-btn-row {
@@ -180,15 +212,17 @@
 }
 
 .gsm-error-message {
-	background: #fcf0f1;
+	background: #fff0f0;
 	border-left: 4px solid #d63638;
 	padding: 10px 15px;
 	margin-top: 15px;
-	color: #1d2327;
-	border-radius: 0 4px 4px 0;
+	color: var(--gsm-text);
+	border-radius: 0 6px 6px 0;
 }
 
-/* Tabs Panel */
+/* ========================
+   Tabs Panel
+   ======================== */
 .gsm-tabs-nav {
 	margin-bottom: 20px !important;
 }
@@ -201,7 +235,9 @@
 	display: block;
 }
 
-/* Action Bar */
+/* ========================
+   Action Bar
+   ======================== */
 .gsm-action-bar {
 	display: flex;
 	align-items: center;
@@ -217,7 +253,9 @@
 	margin-right: 4px;
 }
 
-/* Table Cards */
+/* ========================
+   Table Cards
+   ======================== */
 .gsm-table-card {
 	padding: 0 !important;
 	overflow: hidden;
@@ -235,11 +273,13 @@
 .gsm-no-data-row td {
 	text-align: center;
 	padding: 30px !important;
-	color: #646970;
+	color: var(--gsm-muted);
 	font-style: italic;
 }
 
-/* Status Badges */
+/* ========================
+   Status Badges
+   ======================== */
 .gsm-status-badge {
 	display: inline-flex;
 	align-items: center;
@@ -261,8 +301,8 @@
 }
 
 .gsm-status-unavailable {
-	background-color: #f0f0f1;
-	color: #646970;
+	background-color: var(--gsm-surface);
+	color: var(--gsm-muted);
 }
 
 .gsm-status-error {
@@ -292,7 +332,9 @@
 	text-decoration: none !important;
 }
 
-/* Filter Bar */
+/* ========================
+   Filter Bar
+   ======================== */
 .gsm-filter-bar {
 	display: flex;
 	align-items: center;
@@ -307,9 +349,22 @@
 	max-width: 100%;
 	line-height: 1;
 	height: auto;
+	border: 1px solid var(--gsm-border) !important;
+	border-radius: 6px !important;
+	color: var(--gsm-text) !important;
+	background: var(--gsm-bg) !important;
+	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Repos Grid */
+#gsm-repo-search:focus {
+	border-color: var(--gsm-primary) !important;
+	box-shadow: 0 0 0 3px rgba(40, 89, 255, 0.12) !important;
+	outline: none !important;
+}
+
+/* ========================
+   Repos Grid
+   ======================== */
 .gsm-repos-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -317,21 +372,22 @@
 }
 
 .gsm-repo-card {
-	background: #fff;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	background: var(--gsm-bg);
+	border: 1px solid var(--gsm-border);
+	border-radius: 10px;
 	padding: 18px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 1px 3px rgba(5, 5, 7, 0.06);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	min-height: 160px;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .gsm-repo-card:hover {
-	border-color: #2271b1;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+	border-color: var(--gsm-primary);
+	box-shadow: 0 4px 12px rgba(40, 89, 255, 0.1);
+	transform: translateY(-1px);
 }
 
 .gsm-repo-card-header {
@@ -347,16 +403,16 @@
 	font-size: 15px;
 	font-weight: 600;
 	word-break: break-all;
-	color: #1d2327;
+	color: var(--gsm-text);
 }
 
 .gsm-visibility-badge {
 	font-size: 10px;
 	padding: 2px 6px;
 	border-radius: 4px;
-	background: #f0f0f1;
-	border: 1px solid #c3c4c7;
-	color: #50575e;
+	background: var(--gsm-surface);
+	border: 1px solid var(--gsm-border);
+	color: var(--gsm-muted);
 	text-transform: uppercase;
 	font-weight: 600;
 }
@@ -377,9 +433,9 @@
 	font-size: 10px;
 	padding: 2px 6px;
 	border-radius: 4px;
-	background: #e8f4fd;
-	border: 1px solid #b3dbf2;
-	color: #0c6099;
+	background: #eef2ff;
+	border: 1px solid #c7d2fe;
+	color: var(--gsm-primary);
 	text-transform: uppercase;
 	font-weight: 600;
 	line-height: 1;
@@ -394,9 +450,9 @@
 
 .gsm-branch-label {
 	font-size: 10px;
-	background: #fcf0f5;
-	border: 1px solid #f9d6e5;
-	color: #a31d58;
+	background: #f0f4ff;
+	border: 1px solid #c7d2fe;
+	color: var(--gsm-primary);
 	padding: 2px 6px;
 	border-radius: 4px;
 	font-weight: 600;
@@ -414,17 +470,17 @@
 	font-size: 10px !important;
 	line-height: 1 !important;
 	font-weight: 600 !important;
-	color: #50575e !important;
-	border-color: #c3c4c7 !important;
-	background: #f6f7f7 !important;
+	color: var(--gsm-muted) !important;
+	border-color: var(--gsm-border) !important;
+	background: var(--gsm-surface) !important;
 	cursor: pointer;
 	border-radius: 3px;
 }
 
 .gsm-btn-copy-prompt:hover {
-	background: #f0f0f1 !important;
-	border-color: #8c8f94 !important;
-	color: #1d2327 !important;
+	background: var(--gsm-bg) !important;
+	border-color: var(--gsm-primary) !important;
+	color: var(--gsm-primary) !important;
 }
 
 .gsm-btn-copy-prompt .dashicons {
@@ -437,7 +493,7 @@
 
 .gsm-repo-desc {
 	font-size: 12px;
-	color: #646970;
+	color: var(--gsm-muted);
 	margin: 0 0 15px 0;
 	line-height: 1.4;
 	display: -webkit-box;
@@ -451,17 +507,19 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-top: 1px solid #f0f0f1;
+	border-top: 1px solid var(--gsm-surface);
 	padding-top: 12px;
 	margin-top: auto;
 }
 
 .gsm-repo-date {
 	font-size: 11px;
-	color: #8c8f94;
+	color: var(--gsm-muted);
 }
 
-/* Profile / Settings styling */
+/* ========================
+   Profile / Settings
+   ======================== */
 .gsm-profile-detail {
 	display: flex;
 	align-items: center;
@@ -472,29 +530,32 @@
 	width: 48px;
 	height: 48px;
 	border-radius: 50%;
-	border: 1px solid #c3c4c7;
+	border: 2px solid var(--gsm-primary);
 }
 
 .gsm-info-notice {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	background: #f0f6fc;
-	border-left: 4px solid #2271b1;
+	background: #f0f4ff;
+	border-left: 4px solid var(--gsm-primary);
 	padding: 10px 15px;
 	margin-top: 10px;
-	border-radius: 0 4px 4px 0;
+	border-radius: 0 6px 6px 0;
 }
 
 .gsm-info-notice .dashicons {
-	color: #2271b1;
+	color: var(--gsm-primary);
 }
 
 .gsm-info-notice p {
 	margin: 0;
+	color: var(--gsm-text);
 }
 
-/* Logs */
+/* ========================
+   Logs
+   ======================== */
 .gsm-logs-card {
 	padding: 0 !important;
 }
@@ -506,11 +567,11 @@
 .gsm-log-action-tag {
 	font-family: monospace;
 	font-size: 11px;
-	background: #f0f0f1;
+	background: var(--gsm-surface);
 	padding: 2px 6px;
 	border-radius: 3px;
-	color: #50575e;
-	border: 1px solid #dcdcde;
+	color: var(--gsm-muted);
+	border: 1px solid var(--gsm-border);
 }
 
 .gsm-log-msg-cell {
@@ -520,12 +581,14 @@
 .gsm-no-logs-msg {
 	padding: 30px;
 	text-align: center;
-	color: #646970;
+	color: var(--gsm-muted);
 	margin: 0;
 	font-style: italic;
 }
 
-/* Installation Modal */
+/* ========================
+   Installation Modal
+   ======================== */
 .gsm-modal-wrapper {
 	position: fixed;
 	z-index: 100000;
@@ -552,7 +615,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(15, 23, 42, 0.4);
+	background: rgba(5, 5, 7, 0.45);
 	backdrop-filter: blur(6px);
 	-webkit-backdrop-filter: blur(6px);
 }
@@ -560,9 +623,9 @@
 .gsm-modal-container {
 	position: relative;
 	z-index: 1;
-	background: #ffffff;
-	border-radius: 12px;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	background: var(--gsm-bg);
+	border-radius: 14px;
+	box-shadow: 0 24px 48px rgba(5, 5, 7, 0.14), 0 8px 16px rgba(5, 5, 7, 0.08);
 	max-width: 500px;
 	width: 90%;
 	max-height: 85vh;
@@ -571,7 +634,7 @@
 	overflow: hidden;
 	transform: scale(0.92);
 	transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-	border: 1px solid rgba(226, 232, 240, 0.8);
+	border: 1px solid var(--gsm-border);
 }
 
 .gsm-modal-wrapper.gsm-modal-open .gsm-modal-container {
@@ -583,44 +646,50 @@
 	align-items: center;
 	justify-content: space-between;
 	padding: 16px 20px;
-	border-bottom: 1px solid #f1f5f9;
-	background: #f8fafc;
+	border-bottom: 1px solid var(--gsm-surface);
+	background: var(--gsm-bg);
 }
 
 .gsm-modal-title {
 	margin: 0 !important;
 	font-size: 16px;
 	font-weight: 600;
-	color: #0f172a;
+	color: var(--gsm-text);
 }
 
+/* ── Close Button (X) ──────────────────────── */
 .gsm-modal-close {
 	background: none;
 	border: none;
-	font-size: 22px;
-	color: #64748b;
+	font-size: 20px;
+	line-height: 1;
+	color: var(--gsm-muted);
 	cursor: pointer;
 	padding: 0;
-	line-height: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	/* Force a perfectly square box and center content */
 	width: 28px;
 	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	border-radius: 50%;
 	transition: background-color 0.2s, color 0.2s, transform 0.2s;
+	/* Override any WordPress or browser inherited line-height that shifts × */
+	font-family: Arial, sans-serif;
 }
 
 .gsm-modal-close:hover {
-	color: #0f172a;
-	background-color: #e2e8f0;
+	color: var(--gsm-text);
+	background-color: var(--gsm-surface);
 	transform: rotate(90deg);
 }
+
+/* ─────────────────────────────────────────── */
 
 .gsm-modal-body {
 	padding: 20px;
 	overflow-y: auto;
-	color: #334155;
+	color: var(--gsm-text);
 	font-size: 13.5px;
 	line-height: 1.5;
 }
@@ -630,8 +699,37 @@
 	justify-content: flex-end;
 	gap: 10px;
 	padding: 14px 20px;
-	border-top: 1px solid #f1f5f9;
-	background: #f8fafc;
+	border-top: 1px solid var(--gsm-surface);
+	background: var(--gsm-bg);
+}
+
+/* ── Primary / Hover Buttons ── */
+.gsm-modal-footer .button-primary,
+.gsm-modal-btn-install.button-primary {
+	background: var(--gsm-primary) !important;
+	border-color: var(--gsm-primary) !important;
+	color: #fff !important;
+	border-radius: 6px !important;
+	font-weight: 600 !important;
+	transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.gsm-modal-footer .button-primary:hover:not(:disabled),
+.gsm-modal-btn-install.button-primary:hover:not(:disabled) {
+	background: var(--gsm-primary-hov) !important;
+	border-color: var(--gsm-primary-hov) !important;
+	box-shadow: 0 4px 12px rgba(40, 89, 255, 0.3) !important;
+}
+
+.gsm-modal-footer .button:not(.button-primary) {
+	border-color: var(--gsm-border) !important;
+	color: var(--gsm-muted) !important;
+	border-radius: 6px !important;
+}
+
+.gsm-modal-footer .button:not(.button-primary):hover {
+	border-color: var(--gsm-primary) !important;
+	color: var(--gsm-primary) !important;
 }
 
 /* Modal Inner Elements styling */
@@ -647,8 +745,8 @@
 .gsm-modal-spinner {
 	width: 40px;
 	height: 40px;
-	border: 3px solid #e2e8f0;
-	border-top-color: #2271b1;
+	border: 3px solid var(--gsm-surface);
+	border-top-color: var(--gsm-primary);
 	border-radius: 50%;
 	animation: gsm-spin 0.8s linear infinite;
 	margin-bottom: 15px;
@@ -710,21 +808,22 @@
 }
 
 .gsm-toggle-advanced-link {
-	font-weight: 500;
-	text-decoration: none;
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	color: #2271b1;
+	color: var(--gsm-primary);
+	font-size: 13px;
+	font-weight: 500;
+	text-decoration: none;
 }
 
 .gsm-toggle-advanced-link:hover {
-	color: #135e96;
+	color: var(--gsm-primary-hov);
 }
 
 .gsm-modal-options {
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: var(--gsm-surface);
+	border: 1px solid var(--gsm-border);
 	border-radius: 8px;
 	padding: 15px;
 	margin-bottom: 10px;
@@ -743,7 +842,7 @@
 	font-weight: 600;
 	margin-bottom: 6px;
 	font-size: 12px;
-	color: #475569;
+	color: var(--gsm-text);
 }
 
 .gsm-modal-field select {
@@ -751,9 +850,26 @@
 	max-width: 100%;
 	padding: 6px 10px;
 	font-size: 13px;
-	border-radius: 4px;
-	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	border: 1px solid var(--gsm-border);
 	height: 32px;
+	background: var(--gsm-bg);
+	color: var(--gsm-text);
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gsm-modal-field select:focus {
+	border-color: var(--gsm-primary);
+	box-shadow: 0 0 0 3px rgba(40, 89, 255, 0.12);
+	outline: none;
+}
+
+.gsm-field-description {
+	margin-top: 5px;
+	margin-bottom: 0;
+	font-size: 11px;
+	color: var(--gsm-muted);
+	line-height: 1.4;
 }
 
 /* Success Done state */
@@ -780,12 +896,12 @@
 .gsm-modal-done h4 {
 	font-size: 18px;
 	margin: 0 0 10px 0;
-	color: #0f172a;
+	color: var(--gsm-text);
 }
 
 .gsm-modal-done p {
 	font-size: 13.5px;
-	color: #475569;
+	color: var(--gsm-muted);
 	margin: 0 0 24px 0;
 }
 
@@ -798,17 +914,59 @@
 	font-weight: 600 !important;
 	border-radius: 6px !important;
 	text-decoration: none !important;
+	background: var(--gsm-primary) !important;
+	border-color: var(--gsm-primary) !important;
+	color: #fff !important;
+	transition: background-color 0.2s !important;
 }
 
+.gsm-modal-btn-activate:hover {
+	background: var(--gsm-primary-hov) !important;
+	border-color: var(--gsm-primary-hov) !important;
+}
+
+/* ========================
+   Subfolder / Folder Badges
+   ======================== */
 .gsm-subfolder-label {
 	font-size: 10px;
-	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
-	color: #166534;
+	background: #eef2ff;
+	border: 1px solid #c7d2fe;
+	color: var(--gsm-primary);
 	padding: 2px 6px;
 	border-radius: 4px;
 	font-weight: 600;
 	line-height: 1;
 	text-transform: uppercase;
 	margin-left: 8px;
+}
+
+/* ========================
+   Info Box (folder desc)
+   ======================== */
+.gsm-info-box {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	background: #f0f4ff;
+	border: 1px solid #c7d2fe;
+	padding: 10px 12px;
+	border-radius: 6px;
+	margin-top: 8px;
+}
+
+.gsm-info-box .dashicons-info {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: var(--gsm-primary);
+	margin-top: 2px;
+	flex-shrink: 0;
+}
+
+.gsm-info-box .gsm-field-description {
+	margin: 0;
+	font-size: 11px;
+	color: var(--gsm-primary);
+	line-height: 1.45;
 }
