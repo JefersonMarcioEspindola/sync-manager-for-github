@@ -1,4 +1,4 @@
-# GitHub Sync Manager
+# Sync Manager for GitHub
 
 [English](#english) | [Português](#português)
 
@@ -6,7 +6,7 @@
 
 ## English
 
-**GitHub Sync Manager** is an open-source WordPress plugin developed to simplify the distribution, installation, and update of other plugins hosted in public or private GitHub repositories, using repository **Releases** or **Branches** as the single source of truth (*Source of Truth*).
+**Sync Manager for GitHub** is an open-source WordPress plugin developed to simplify the distribution, installation, and update of other plugins hosted in public or private GitHub repositories, using repository **Releases** or **Branches** as the single source of truth (*Source of Truth*).
 
 The main use case is the quick distribution of tailor-made or active-development plugins: when you publish a new release (or push to a branch) on GitHub, WordPress automatically detects and lists the update on the native Plugins screen, identical to official WordPress.org plugins.
 
@@ -18,7 +18,6 @@ The main use case is the quick distribution of tailor-made or active-development
 - **Manual Branch and Subfolder Selection**: If your plugin is located in a nested subdirectory (e.g. `includes/` or `my-plugin/`) or if you need to install from a specific git branch, you can select it manually. The system isolates the subfolder contents, discards the rest of the zip, and renames the folder to the canonical slug.
 - **Native WordPress Updates**: Updates are integrated into the core WordPress updater. Clicking "Update Now" handles downloading and unzipping natively.
 - **Branch Fallback Support**: If a repository does not have any releases, the plugin lists and installs directly from branch references (e.g., `main` or `master`).
-- **AI Release Prompt Helper**: Easily copy a pre-formatted prompt to Claude, Antigravity, or ChatGPT to generate step-by-step instructions on creating GitHub releases.
 - **Automatic Repository Filtering**: The add-plugin directory automatically hides non-PHP or non-WordPress repositories to keep the interface clutter-free.
 - **Secure Credentials**: GitHub PATs are authenticated securely using **AES-256-GCM authenticated encryption**.
 - **Backup & Automatic Rollback**: Before updating, a temporary backup of the plugin directory is generated. If the update fails, the previous version is instantly restored.
@@ -38,31 +37,29 @@ The main use case is the quick distribution of tailor-made or active-development
 ### 📂 Directory Structure
 
 ```text
-├── github-sync-manager/         # Core plugin directory
+├── sync-manager-for-github/          # Core plugin directory
 │   ├── assets/
-│   │   ├── css/admin.css        # CSS styles and modal styles
-│   │   └── js/admin.js          # Tab logic and AJAX handler
+│   │   ├── css/admin.css             # CSS styles and modal styles
+│   │   └── js/admin.js               # Tab logic and AJAX handler
 │   ├── includes/
-│   │   ├── class-admin.php      # Admin views, AJAX actions, and modal HTML
-│   │   ├── class-encryption.php # AES-256-GCM credentials encryption
-│   │   ├── class-github-api.php # REST API GitHub Client (with Trees API support)
-│   │   ├── class-manager.php    # DB, directory check, and logger
-│   │   └── class-updater.php    # Native WordPress update hooks integration
-│   ├── languages/               # Translation binary MO catalogs (PT, EN, ES)
-│   ├── github-sync-manager.php  # Main entrypoint file
-│   └── readme.txt               # WordPress.org plugin directory readme documentation
+│   │   ├── class-admin.php           # Admin views, AJAX actions, and modal HTML
+│   │   ├── class-encryption.php      # AES-256-GCM credentials encryption
+│   │   ├── class-github-api.php      # REST API GitHub Client (with Trees API support)
+│   │   ├── class-manager.php         # DB, directory check, and logger
+│   │   └── class-updater.php         # Native WordPress update hooks integration
+│   ├── languages/                    # Translation binary MO catalogs (PT, EN, ES)
+│   ├── sync-manager-for-github.php   # Main entrypoint file
+│   └── readme.txt                    # WordPress.org plugin directory readme documentation
 │
-└── releases/                    # Packaged zip release archives
-    ├── github-sync-manager-v0.0.5.zip
-    ├── github-sync-manager-v0.0.6.zip
-    └── github-sync-manager-v0.0.7.zip
+└── releases/                         # Packaged zip release archives
+    └── sync-manager-for-github-v1.0.0.zip
 ```
 
 ---
 
 ### 💾 Installation & Setup
 
-1. Navigate to the `releases/` directory and download the latest version ZIP (`v0.0.7`).
+1. Navigate to the `releases/` directory and download the latest version ZIP (`v1.0.0`).
 2. Inside your WordPress admin panel, go to **Plugins > Add New > Upload Plugin** and select the ZIP file.
 3. Activate the plugin.
 4. Go to the new **GitHub Sync** menu item in your WordPress sidebar.
@@ -72,7 +69,7 @@ The main use case is the quick distribution of tailor-made or active-development
 
 ## Português
 
-O **GitHub Sync Manager** é um plugin WordPress open-source desenvolvido para simplificar a distribuição, instalação e atualização de outros plugins hospedados em repositórios do GitHub (públicos ou privados), utilizando as **Releases** ou **Branches** do repositório como fonte de verdade (*Source of Truth*).
+O **Sync Manager for GitHub** é um plugin WordPress open-source desenvolvido para simplificar a distribuição, instalação e atualização de outros plugins hospedados em repositórios do GitHub (públicos ou privados), utilizando as **Releases** ou **Branches** do repositório como fonte de verdade (*Source of Truth*).
 
 O caso de uso central é a distribuição ágil de plugins sob medida ou em desenvolvimento ativo: o desenvolvedor publica uma nova release (ou faz commit em um ramo) no GitHub, e o WordPress automaticamente identifica e exibe a atualização disponível na tela padrão de Plugins, exatamente como ocorre com plugins hospedados no diretório oficial do WordPress.org.
 
@@ -84,7 +81,6 @@ O caso de uso central é a distribuição ágil de plugins sob medida ou em dese
 - **Seleção Manual de Ramo e Subpasta**: Se o seu plugin não estiver localizado na raiz do repositório (ex: subpasta `includes/` ou `my-plugin/`) ou se você deseja instalar de uma branch específica, o plugin permite fazer a seleção manual no modal. O sistema isola apenas os arquivos da subpasta e descarta o restante do ZIP, renomeando o diretório final para o slug canônico.
 - **Integração Nativa de Atualizações**: A atualização é integrada ao ecossistema nativo do WordPress. O botão nativo "Atualizar agora" na tela principal de Plugins executa o download e a descompactação automaticamente.
 - **Fallback por Ramo (Branches)**: Se o repositório não possuir nenhuma release oficial gerada, o plugin lista e instala o conteúdo diretamente a partir das branches (ex: `main` ou `master`).
-- **Cópia de Prompt de IA**: Para repositórios instalados via branch, um botão permite copiar um prompt estruturado para ser enviado ao Claude, Antigravity ou ChatGPT para ajudar a criar as releases corretas no GitHub.
 - **Filtragem Automática**: A lista de repositórios filtra automaticamente repositórios que não tenham estrutura PHP ou WordPress, evitando poluir o painel de plugins com outros sites ou ferramentas.
 - **Conectividade Segura**: Autenticação simplificada por meio de Personal Access Tokens (PAT) do GitHub, suportando **Classic PATs** e **Fine-Grained PATs**.
 - **Cópia de Segurança & Recuperação Automática**: Antes de substituir os arquivos de um plugin durante uma atualização, o sistema cria um backup da pasta existente. Se a atualização falhar, a versão anterior é restaurada imediatamente.
@@ -104,24 +100,22 @@ O caso de uso central é a distribuição ágil de plugins sob medida ou em dese
 ### 📂 Estrutura de Pastas do Repositório
 
 ```text
-├── github-sync-manager/         # Código principal do plugin
+├── sync-manager-for-github/          # Código principal do plugin
 │   ├── assets/
-│   │   ├── css/admin.css        # Estilos customizados e modal premium
-│   │   └── js/admin.js          # Lógica de abas, busca e chamadas AJAX do modal
+│   │   ├── css/admin.css             # Estilos customizados e modal premium
+│   │   └── js/admin.js               # Lógica de abas, busca e chamadas AJAX do modal
 │   ├── includes/
-│   │   ├── class-admin.php      # Telas administrativas, AJAX e render do modal
-│   │   ├── class-encryption.php # Criptografia AES-256-GCM das credenciais
-│   │   ├── class-github-api.php # Cliente de chamadas à API do GitHub (com Trees API)
-│   │   ├── class-manager.php    # Controle de banco de dados, diretórios e logs
-│   │   └── class-updater.php    # Acoplamento de atualizações nativas do WordPress
-│   ├── languages/               # Arquivos binários (.mo) de traduções (PT, EN, ES)
-│   ├── github-sync-manager.php  # Arquivo principal do plugin
-│   └── readme.txt               # Documentação para o repositório WordPress.org
+│   │   ├── class-admin.php           # Telas administrativas, AJAX e render do modal
+│   │   ├── class-encryption.php      # Criptografia AES-256-GCM das credenciais
+│   │   ├── class-github-api.php      # Cliente de chamadas à API do GitHub (com Trees API)
+│   │   ├── class-manager.php         # Controle de banco de dados, diretórios e logs
+│   │   └── class-updater.php         # Acoplamento de atualizações nativas do WordPress
+│   ├── languages/                    # Arquivos binários (.mo) de traduções (PT, EN, ES)
+│   ├── sync-manager-for-github.php   # Arquivo principal do plugin
+│   └── readme.txt                    # Documentação para o repositório WordPress.org
 │
-└── releases/                    # Pasta de distribuição contendo os pacotes ZIP
-    ├── github-sync-manager-v0.0.5.zip
-    ├── github-sync-manager-v0.0.6.zip
-    └── github-sync-manager-v0.0.7.zip
+└── releases/                         # Pasta de distribuição contendo os pacotes ZIP
+    └── sync-manager-for-github-v1.0.0.zip
 ```
 
 ---
