@@ -370,6 +370,10 @@ class GSM_Admin {
 		foreach ( $managed as $repo => $data ) {
 			$plugin_file = isset( $data['plugin_file'] ) ? $data['plugin_file'] : '';
 			$plugin_name = dirname( $plugin_file );
+			if ( '.' === $plugin_name || empty( $plugin_name ) ) {
+				$repo_parts  = explode( '/', $repo );
+				$plugin_name = end( $repo_parts );
+			}
 
 			$installed_version = '0.0.0';
 
@@ -793,8 +797,9 @@ class GSM_Admin {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 			// Set the dynamic global variable so the upgrader filters recognize and resolve the canonical slug
-			GSM_Updater::$currently_installing_repo      = $repo_slug;
-			GSM_Updater::$currently_installing_subfolder = $selected_subfolder;
+			GSM_Updater::$currently_installing_repo           = $repo_slug;
+			GSM_Updater::$currently_installing_subfolder      = $selected_subfolder;
+			GSM_Updater::$currently_installing_canonical_slug = '';
 
 			// Force direct filesystem access — required for AJAX-based plugin installation
 			$gsm_fs_filter = function() { return 'direct'; };
@@ -810,9 +815,13 @@ class GSM_Admin {
 			// Re-initialize files and flush cache
 			wp_clean_plugins_cache();
 
+			// Capture the resolved canonical slug
+			$resolved_canonical_slug = GSM_Updater::$currently_installing_canonical_slug;
+
 			// Clear dynamic variables
-			GSM_Updater::$currently_installing_repo      = '';
-			GSM_Updater::$currently_installing_subfolder = '';
+			GSM_Updater::$currently_installing_repo           = '';
+			GSM_Updater::$currently_installing_subfolder      = '';
+			GSM_Updater::$currently_installing_canonical_slug = '';
 
 			if ( is_wp_error( $result ) ) {
 				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
@@ -837,28 +846,30 @@ class GSM_Admin {
 			$installed_plugin_file = '';
 			$latest_version        = ltrim( $target_release['tag_name'], 'vV' );
 
-			// Search for matching metadata
-			foreach ( $plugins as $file => $meta ) {
-				$parts_file = explode( '/', $file );
-				$folder     = $parts_file[0];
-				$domain = isset( $meta['TextDomain'] ) ? trim( $meta['TextDomain'] ) : '';
-				if ( ! empty( $domain ) && ( sanitize_title( $domain ) === $folder ) ) {
-					$installed_plugin_file = $file;
-					break;
-				}
-			}
-
-			// Fallback: search by name/version
-			if ( empty( $installed_plugin_file ) ) {
+			// Strategy 1: Search by the resolved canonical slug from the upgrader source selection
+			if ( ! empty( $resolved_canonical_slug ) ) {
 				foreach ( $plugins as $file => $meta ) {
-					if ( basename( dirname( $file ) ) === sanitize_title( $repo ) ) {
+					$parts_file = explode( '/', $file );
+					if ( $parts_file[0] === $resolved_canonical_slug ) {
 						$installed_plugin_file = $file;
 						break;
 					}
 				}
 			}
 
-			// Ultimate fallback: get the last modified plugin folder inside wp-content/plugins
+			// Strategy 2: Fallback to searching by sanitized repository name
+			if ( empty( $installed_plugin_file ) ) {
+				$repo_slug_sanitized = sanitize_title( $repo );
+				foreach ( $plugins as $file => $meta ) {
+					$parts_file = explode( '/', $file );
+					if ( count( $parts_file ) > 1 && $parts_file[0] === $repo_slug_sanitized ) {
+						$installed_plugin_file = $file;
+						break;
+					}
+				}
+			}
+
+			// Strategy 3: Ultimate fallback - get the last modified plugin folder in WP_PLUGIN_DIR (within last 5 minutes)
 			if ( empty( $installed_plugin_file ) ) {
 				$folders_dir = glob( WP_PLUGIN_DIR . '/*', GLOB_ONLYDIR );
 				$latest_time = 0;
@@ -871,7 +882,7 @@ class GSM_Admin {
 					}
 				}
 
-				if ( ! empty( $latest_folder ) ) {
+				if ( ! empty( $latest_folder ) && ( time() - $latest_time ) < 300 ) {
 					$nested_files = glob( WP_PLUGIN_DIR . '/' . $latest_folder . '/*.php' );
 					foreach ( $nested_files as $nf ) {
 						$data_f = get_file_data( $nf, array( 'PluginName' => 'Plugin Name' ) );
@@ -914,9 +925,12 @@ class GSM_Admin {
 
 			$activate_url = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $installed_plugin_file ), 'activate-plugin_' . $installed_plugin_file );
 
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $installed_plugin_file );
+			$plugin_name = ! empty( $plugin_data['Name'] ) ? $plugin_data['Name'] : $repo;
+
 			wp_send_json_success( array(
 				'message'      => __( 'Plugin instalado com sucesso!', 'sync-manager-for-github' ),
-				'plugin_name'  => get_plugin_data( WP_PLUGIN_DIR . '/' . $installed_plugin_file )['Name'],
+				'plugin_name'  => $plugin_name,
 				'version'      => $latest_version,
 				'activate_url' => admin_url( $activate_url ),
 			) );

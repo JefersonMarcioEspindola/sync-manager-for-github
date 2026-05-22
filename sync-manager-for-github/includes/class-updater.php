@@ -23,6 +23,7 @@ class GSM_Updater {
 	 * @var string
 	 */
 	public static $currently_installing_repo = '';
+	public static $currently_installing_canonical_slug = '';
 
 	/**
 	 * Tracks the subfolder of the repository currently being installed via the admin panel.
@@ -406,6 +407,8 @@ class GSM_Updater {
 
 		// Determine the canonical folder slug: prefer Text Domain, fallback to main filename
 		$canonical_slug = ! empty( $text_domain ) ? sanitize_title( $text_domain ) : $fallback_name;
+
+		self::$currently_installing_canonical_slug = $canonical_slug;
 
 		if ( empty( $canonical_slug ) ) {
 			return new WP_Error(

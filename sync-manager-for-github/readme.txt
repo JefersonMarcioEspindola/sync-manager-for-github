@@ -3,7 +3,7 @@ Contributors: JefersonMarcioEspindola
 Tags: github, plugin updater, private plugins, github releases, self-hosted
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -72,6 +72,10 @@ The only external communication is with the GitHub API (`api.github.com`) using 
 3. Activity log showing install and update history.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed plugin installation folder detection logic to prevent capturing unrelated plugins.
+* Improved plugin name lookup to use the resolved canonical slug, with sanitization and repository fallback.
 
 = 1.0.1 =
 * Fixed language/translation autoloading issue by calling load_plugin_textdomain() explicitly.
