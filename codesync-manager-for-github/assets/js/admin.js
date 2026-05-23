@@ -1006,6 +1006,7 @@ jQuery(document).ready(function($) {
 			$('#codesync-webhook-active-view').show();
 			$('#codesync-webhook-setup-view').hide();
 			$('#codesync-btn-verify-webhook').hide();
+			$('#codesync-btn-disconnect-webhook').css('display', 'inline-flex');
 			// Load logs
 			loadWebhookLogs(repo);
 		} else {
@@ -1013,6 +1014,7 @@ jQuery(document).ready(function($) {
 			$('#codesync-webhook-active-view').hide();
 			$('#codesync-webhook-setup-view').show();
 			$('#codesync-btn-verify-webhook').show();
+			$('#codesync-btn-disconnect-webhook').hide();
 		}
 
 		$webhookModal.show();
@@ -1205,6 +1207,7 @@ jQuery(document).ready(function($) {
 						$('#codesync-webhook-active-view').slideDown(300);
 					});
 					$btn.hide();
+					$('#codesync-btn-disconnect-webhook').css('display', 'inline-flex');
 
 					// Update the webhook button on the card to mark as active
 					$pluginsCards.find('.codesync-btn-webhook-info[data-repo="' + currentWebhookRepo + '"]').attr('data-active', '1');

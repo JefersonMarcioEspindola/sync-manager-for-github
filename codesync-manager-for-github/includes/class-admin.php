@@ -399,14 +399,6 @@ class CODESYNC_Admin {
 						<p style="text-align:center; margin:14px 0 0;">
 							<a href="#" id="codesync-webhook-show-details" style="font-size:12px; color:#94a3b8; text-decoration:underline;"><?php esc_html_e( 'View webhook configuration details', 'codesync-manager-for-github' ); ?></a>
 						</p>
-
-						<!-- Disconnect button -->
-						<div style="text-align:center; margin:16px 0 0;">
-							<button type="button" id="codesync-btn-disconnect-webhook" class="button" style="color:#ef4444; border-color:#fca5a5; display:inline-flex; align-items:center; gap:5px;">
-								<i data-lucide="unplug" style="width:13px;height:13px;"></i>
-								<?php esc_html_e( 'Disconnect Webhook', 'codesync-manager-for-github' ); ?>
-							</button>
-						</div>
 					</div>
 
 					<!-- View: Webhook Setup (shown when not yet configured / verify button clicked) -->
@@ -454,6 +446,10 @@ class CODESYNC_Admin {
 				</div>
 				<div class="codesync-modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
 					<button type="button" class="button codesync-modal-btn-cancel"><?php esc_html_e( 'Close', 'codesync-manager-for-github' ); ?></button>
+					<button type="button" id="codesync-btn-disconnect-webhook" class="button" style="display:none; color:#ef4444; border-color:#fca5a5; align-items:center; gap:5px;">
+						<i data-lucide="unplug" style="width:13px;height:13px;"></i>
+						<?php esc_html_e( 'Disconnect Webhook', 'codesync-manager-for-github' ); ?>
+					</button>
 					<button type="button" class="button button-primary" id="codesync-btn-verify-webhook" disabled><?php esc_html_e( 'Verify Webhook', 'codesync-manager-for-github' ); ?></button>
 				</div>
 			</div>
