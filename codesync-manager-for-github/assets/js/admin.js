@@ -1080,6 +1080,9 @@ jQuery(document).ready(function($) {
 					html += '  <span style="flex-shrink:0; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; background:' + (isSuccess ? '#dcfce7' : '#fee2e2') + '; color:' + (isSuccess ? '#166534' : '#991b1b') + ';">' + resultLabel + '</span>';
 					html += '</div>';
 				});
+				if (data.has_more) {
+					html += '<p style="text-align:center; padding:8px; font-size:11px; color:#94a3b8; margin:0; border-top:1px solid #e2e8f0;">Showing 20 most recent entries — older logs not displayed.</p>';
+				}
 				$list.html(html);
 			},
 			error: function() {
