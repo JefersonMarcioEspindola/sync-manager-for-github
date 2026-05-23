@@ -115,7 +115,8 @@ class CODESYNC_Admin_UI {
 				'sync_success_msg'      => __( 'The package <strong>%1$s</strong> was already installed on your WordPress. The code has been updated and is now synchronized and being managed (Version %2$s).', 'codesync-manager-for-github' ),
 				'install_success_title' => __( '&#x2705; Package Installed Successfully!', 'codesync-manager-for-github' ),
 				/* translators: 1: plugin name, 2: version number */
-				'install_success_msg'   => __( 'The package <strong>%1$s</strong> (Version %2$s) was downloaded and saved locally.', 'codesync-manager-for-github' ),
+				'install_success_msg'   => __( 'The package <strong>%1$s</strong> (Version %2$s) was downloaded and saved on your WordPress.', 'codesync-manager-for-github' ),
+				'activation_required'   => __( 'WordPress does not allow a plugin to activate another plugin. Click the button below to activate it — auto-sync will start right after.', 'codesync-manager-for-github' ),
 				'activate_btn'          => __( 'Activate Now', 'codesync-manager-for-github' ),
 				/* translators: %s: error message */
 				'scan_error'            => __( 'Error scanning: %s', 'codesync-manager-for-github' ),

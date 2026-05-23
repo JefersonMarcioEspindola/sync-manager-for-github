@@ -636,20 +636,25 @@ jQuery(document).ready(function($) {
 					installIsDone = true;
 					cachedRepos = [];
 
+					var wasAlreadyInstalled = !!response.data.was_already_installed;
+					var pkgName = response.data.plugin_name || '';
+					var pkgVersion = response.data.version || '';
+
 					var doneHtml = '';
 					doneHtml += '<div class="codesync-modal-done">';
 					doneHtml += '  <div class="codesync-modal-done-icon">✓</div>';
-					if (installIsUpdate) {
-						doneHtml += '  <h4>' + (codesync_ajax.texts.sync_success_title || '&#x2705; Sincronizado com Sucesso!') + '</h4>';
-						doneHtml += '  <p>' + (codesync_ajax.texts.sync_success_msg || 'O plugin <strong>%1$s</strong> já estava instalado e agora está sendo gerenciado pelo CodeSync Manager (Versão %2$s).').replace('%1$s', response.data.plugin_name).replace('%2$s', response.data.version) + '</p>';
+					if (wasAlreadyInstalled) {
+						doneHtml += '  <h4>' + codesync_ajax.texts.sync_success_title + '</h4>';
+						doneHtml += '  <p>' + codesync_ajax.texts.sync_success_msg.replace('%1$s', pkgName).replace('%2$s', pkgVersion) + '</p>';
 					} else {
 						doneHtml += '  <h4>' + codesync_ajax.texts.install_success_title + '</h4>';
-						doneHtml += '  <p>' + codesync_ajax.texts.install_success_msg.replace('%1$s', response.data.plugin_name).replace('%2$s', response.data.version) + '</p>';
+						doneHtml += '  <p>' + codesync_ajax.texts.install_success_msg.replace('%1$s', pkgName).replace('%2$s', pkgVersion) + '</p>';
+						doneHtml += '  <p style="margin-top:12px; padding:10px 14px; background:#fef3c7; border-left:3px solid #f59e0b; border-radius:4px; font-size:13px; color:#78350f;">' + codesync_ajax.texts.activation_required + '</p>';
 					}
 					doneHtml += '</div>';
 
 					$modalBody.html(doneHtml);
-					var footerHtml = '<button type="button" class="button codesync-modal-btn-close-done">' + codesync_ajax.texts.close_btn + '</button>';
+					var footerHtml = '';
 					if (response.data.activate_url) {
 						footerHtml += '<a href="' + response.data.activate_url + '" class="button button-primary codesync-modal-btn-activate">' + codesync_ajax.texts.activate_btn + '</a>';
 					}

@@ -252,6 +252,11 @@ class CODESYNC_Admin_AJAX {
 			// Native programmatic installation via Upgrader
 			include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 			include_once ABSPATH . 'wp-admin/includes/file.php';
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+			// Snapshot installed plugins/themes BEFORE upgrader to detect first-install vs sync
+			$plugins_before = get_plugins();
+			$themes_before  = wp_get_themes();
 
 			// Set the dynamic global variable so the upgrader filters recognize and resolve the canonical slug
 			CODESYNC_Updater::$currently_installing_repo           = $repo_slug;
@@ -325,7 +330,19 @@ class CODESYNC_Admin_AJAX {
 				);
 				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_THEMES, $managed_themes );
 				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Tema gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
-				wp_send_json_success( array( 'message' => __( 'Tema gerenciado com sucesso!', 'codesync-manager-for-github' ) ) );
+
+				$was_already_installed = isset( $themes_before[ $installed_theme_folder ] );
+				$theme_obj             = wp_get_theme( $installed_theme_folder );
+				$theme_name            = $theme_obj->exists() ? $theme_obj->get( 'Name' ) : $installed_theme_folder;
+
+				wp_send_json_success( array(
+					'message'               => __( 'Tema gerenciado com sucesso!', 'codesync-manager-for-github' ),
+					'plugin_name'           => $theme_name,
+					'version'               => $latest_version,
+					'was_already_installed' => $was_already_installed,
+					'activate_url'          => $was_already_installed ? '' : admin_url( 'themes.php' ),
+					'package_type'          => 'theme',
+				) );
 
 			} else {
 				// Plugin Fallback Strategy 3
@@ -370,7 +387,26 @@ class CODESYNC_Admin_AJAX {
 				);
 				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed_plugins );
 				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Plugin gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
-				wp_send_json_success( array( 'message' => __( 'Plugin gerenciado com sucesso!', 'codesync-manager-for-github' ) ) );
+
+				$was_already_installed = isset( $plugins_before[ $installed_plugin_file ] );
+				$plugin_data           = get_plugin_data( WP_PLUGIN_DIR . '/' . $installed_plugin_file, false, false );
+				$plugin_name           = ! empty( $plugin_data['Name'] ) ? $plugin_data['Name'] : $installed_plugin_file;
+				$activate_url          = '';
+				if ( ! $was_already_installed && ! is_plugin_active( $installed_plugin_file ) ) {
+					$activate_url = wp_nonce_url(
+						admin_url( 'plugins.php?action=activate&plugin=' . urlencode( $installed_plugin_file ) ),
+						'activate-plugin_' . $installed_plugin_file
+					);
+				}
+
+				wp_send_json_success( array(
+					'message'               => __( 'Plugin gerenciado com sucesso!', 'codesync-manager-for-github' ),
+					'plugin_name'           => $plugin_name,
+					'version'               => $latest_version,
+					'was_already_installed' => $was_already_installed,
+					'activate_url'          => $activate_url,
+					'package_type'          => 'plugin',
+				) );
 			}
 		}
 
