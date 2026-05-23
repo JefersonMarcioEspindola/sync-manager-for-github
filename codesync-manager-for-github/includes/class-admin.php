@@ -324,20 +324,11 @@ class CODESYNC_Admin {
 									<tr>
 										<th scope="row"><?php esc_html_e( 'Webhook Real-time', 'codesync-manager-for-github' ); ?></th>
 										<td>
-											<p class="description" style="margin-bottom: 10px;">
-												<?php esc_html_e( 'Configure um Webhook no GitHub (em Settings > Webhooks do repositório) para ser notificado de atualizações instantaneamente.', 'codesync-manager-for-github' ); ?>
-											</p>
-											<p><strong><?php esc_html_e( 'Payload URL:', 'codesync-manager-for-github' ); ?></strong><br>
-											<code><?php echo esc_url( get_rest_url( null, 'codesync/v1/webhook' ) ); ?></code></p>
-											
-											<p><strong><?php esc_html_e( 'Secret:', 'codesync-manager-for-github' ); ?></strong><br>
-											<code><?php echo esc_html( class_exists('CODESYNC_Webhook') ? CODESYNC_Webhook::get_or_create_secret() : 'Webhook não carregado.' ); ?></code></p>
-
-											<p><strong><?php esc_html_e( 'Content type:', 'codesync-manager-for-github' ); ?></strong><br>
-											<code>application/json</code></p>
-
-											<p><strong><?php esc_html_e( 'Events:', 'codesync-manager-for-github' ); ?></strong><br>
-											<?php esc_html_e( 'Selecione "Let me select individual events" e marque', 'codesync-manager-for-github' ); ?> <strong>Pushes</strong> <?php esc_html_e( 'e', 'codesync-manager-for-github' ); ?> <strong>Releases</strong>.</p>
+											<button type="button" class="button button-secondary" id="codesync-btn-webhook-info">
+												<i data-lucide="zap" class="codesync-icon"></i>
+												<?php esc_html_e( 'Configurar Webhook', 'codesync-manager-for-github' ); ?>
+											</button>
+											<p class="description"><?php esc_html_e( 'Receba atualizações instantâneas via Webhooks do GitHub.', 'codesync-manager-for-github' ); ?></p>
 										</td>
 									</tr>
 								</tbody>
@@ -361,7 +352,7 @@ class CODESYNC_Admin {
 			<div class="codesync-modal-backdrop"></div>
 			<div class="codesync-modal-container">
 				<div class="codesync-modal-header">
-					<h3 class="codesync-modal-title"><?php esc_html_e( 'Instalar Plugin', 'codesync-manager-for-github' ); ?></h3>
+					<h3 class="codesync-modal-title"><?php esc_html_e( 'Instalar Pacote', 'codesync-manager-for-github' ); ?></h3>
 					<button type="button" class="codesync-modal-close" aria-label="<?php esc_attr_e( 'Fechar', 'codesync-manager-for-github' ); ?>">&times;</button>
 				</div>
 				<div class="codesync-modal-body">
@@ -370,6 +361,43 @@ class CODESYNC_Admin {
 				<div class="codesync-modal-footer">
 					<button type="button" class="button codesync-modal-btn-cancel"><?php esc_html_e( 'Cancelar', 'codesync-manager-for-github' ); ?></button>
 					<button type="button" class="button button-primary codesync-modal-btn-install" disabled><?php esc_html_e( 'Instalar', 'codesync-manager-for-github' ); ?></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal de Webhook -->
+		<div id="codesync-webhook-modal" class="codesync-modal-wrapper" style="display: none;">
+			<div class="codesync-modal-backdrop"></div>
+			<div class="codesync-modal-container">
+				<div class="codesync-modal-header">
+					<h3 class="codesync-modal-title"><?php esc_html_e( 'Configuração de Webhook', 'codesync-manager-for-github' ); ?></h3>
+					<button type="button" class="codesync-modal-close" aria-label="<?php esc_attr_e( 'Fechar', 'codesync-manager-for-github' ); ?>">&times;</button>
+				</div>
+				<div class="codesync-modal-body">
+					<p><?php esc_html_e( 'Configure um Webhook no GitHub (em Settings > Webhooks do repositório) para ser notificado de atualizações instantaneamente.', 'codesync-manager-for-github' ); ?></p>
+					
+					<div class="codesync-form-group">
+						<label><strong><?php esc_html_e( 'Payload URL:', 'codesync-manager-for-github' ); ?></strong></label>
+						<div style="display:flex;gap:10px;">
+							<input type="text" readonly value="<?php echo esc_url( get_rest_url( null, 'codesync/v1/webhook' ) ); ?>" id="codesync-webhook-url" />
+							<button type="button" class="button codesync-btn-copy" data-target="#codesync-webhook-url"><i data-lucide="copy" class="codesync-icon"></i></button>
+						</div>
+					</div>
+
+					<div class="codesync-form-group">
+						<label><strong><?php esc_html_e( 'Secret:', 'codesync-manager-for-github' ); ?></strong></label>
+						<div style="display:flex;gap:10px;">
+							<input type="password" readonly value="<?php echo esc_attr( class_exists('CODESYNC_Webhook') ? CODESYNC_Webhook::get_or_create_secret() : '' ); ?>" id="codesync-webhook-secret" />
+							<button type="button" class="button codesync-btn-toggle-visibility" data-target="#codesync-webhook-secret"><i data-lucide="eye" class="codesync-icon"></i></button>
+							<button type="button" class="button codesync-btn-copy" data-target="#codesync-webhook-secret"><i data-lucide="copy" class="codesync-icon"></i></button>
+						</div>
+					</div>
+
+					<p><strong><?php esc_html_e( 'Content type:', 'codesync-manager-for-github' ); ?></strong> <code>application/json</code></p>
+					<p><strong><?php esc_html_e( 'Events:', 'codesync-manager-for-github' ); ?></strong> <?php esc_html_e( 'Selecione "Let me select individual events" e marque', 'codesync-manager-for-github' ); ?> <strong>Pushes</strong> <?php esc_html_e( 'e', 'codesync-manager-for-github' ); ?> <strong>Releases</strong>.</p>
+				</div>
+				<div class="codesync-modal-footer">
+					<button type="button" class="button button-primary codesync-modal-btn-cancel"><?php esc_html_e( 'Entendi', 'codesync-manager-for-github' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -537,7 +565,7 @@ class CODESYNC_Admin {
 				}
 				?>
 				<div class="codesync-plugin-card-actions">
-					<button type="button" class="button button-primary codesync-btn-force-update" data-repo="<?php echo esc_attr( $repo ); ?>">
+					<button type="button" class="button button-primary codesync-btn-force-update" data-repo="<?php echo esc_attr( $repo ); ?>" <?php disabled( $status !== 'atualizacao_disponivel' ); ?>>
 						<i data-lucide="cloud-upload" class="codesync-icon"></i>
 						<?php esc_html_e( 'Atualizar', 'codesync-manager-for-github' ); ?>
 					</button>

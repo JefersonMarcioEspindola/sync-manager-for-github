@@ -889,6 +889,78 @@ jQuery(document).ready(function($) {
 		});
 	});
 
+	/* ---------------------------------------------------- */
+	/* 11. Webhook Modal & Utilities                        */
+	/* ---------------------------------------------------- */
+	var $webhookModal = $('#codesync-webhook-modal');
+
+	function hideWebhookModal() {
+		$webhookModal.removeClass('codesync-modal-open');
+		setTimeout(function() {
+			$webhookModal.hide();
+		}, 250);
+	}
+
+	$('#codesync-btn-webhook-info').on('click', function(e) {
+		e.preventDefault();
+		$webhookModal.show();
+		// small delay to allow display:block to render before adding class for opacity transition
+		setTimeout(function() {
+			$webhookModal.addClass('codesync-modal-open');
+		}, 10);
+	});
+
+	$webhookModal.find('.codesync-modal-close, .codesync-modal-backdrop, .codesync-modal-btn-cancel').on('click', function(e) {
+		if ($(e.target).hasClass('codesync-modal-backdrop') || $(e.target).closest('button').length) {
+			e.preventDefault();
+			hideWebhookModal();
+		}
+	});
+
+	$('.codesync-btn-copy').on('click', function() {
+		var targetId = $(this).data('target');
+		var $input = $(targetId);
+		if ($input.length) {
+			// Temporary change type to text to allow copy if it is password
+			var wasPassword = $input.attr('type') === 'password';
+			if (wasPassword) {
+				$input.attr('type', 'text');
+			}
+			$input.select();
+			document.execCommand('copy');
+			if (wasPassword) {
+				$input.attr('type', 'password');
+			}
+			
+			// Visual feedback
+			var $icon = $(this).find('.codesync-icon');
+			var originalIcon = $icon.attr('data-lucide');
+			$icon.attr('data-lucide', 'check').css('color', '#00a32a');
+			lucide.createIcons();
+			
+			setTimeout(function() {
+				$icon.attr('data-lucide', originalIcon).css('color', '');
+				lucide.createIcons();
+			}, 2000);
+		}
+	});
+
+	$('.codesync-btn-toggle-visibility').on('click', function() {
+		var targetId = $(this).data('target');
+		var $input = $(targetId);
+		if ($input.length) {
+			var $icon = $(this).find('.codesync-icon');
+			if ($input.attr('type') === 'password') {
+				$input.attr('type', 'text');
+				$icon.attr('data-lucide', 'eye-off');
+			} else {
+				$input.attr('type', 'password');
+				$icon.attr('data-lucide', 'eye');
+			}
+			lucide.createIcons();
+		}
+	});
+
 	// Initialize all Lucide icons rendered by PHP on page load
 	lucide.createIcons();
 });
