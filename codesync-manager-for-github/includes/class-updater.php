@@ -23,6 +23,7 @@ class CODESYNC_Updater {
 	 * @var string
 	 */
 	public static $currently_installing_repo = '';
+	public static $currently_installing_type = '';
 	public static $currently_installing_canonical_slug = '';
 
 	/**
@@ -198,6 +199,8 @@ class CODESYNC_Updater {
 	public static function upgrader_pre_download( $reply, $package, $upgrader, $hook_extra = array() ) {
 		// Identify if this package is a GitHub URL downloaded via our plugin
 		$is_gsm = false;
+		$package_type = 'plugin';
+
 		if ( ! empty( $hook_extra['plugin'] ) ) {
 			$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
 			foreach ( $managed_plugins as $slug => $data ) {
@@ -206,10 +209,23 @@ class CODESYNC_Updater {
 					break;
 				}
 			}
+		} elseif ( ! empty( $hook_extra['theme'] ) ) {
+			$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+			foreach ( $managed_themes as $slug => $data ) {
+				// Themes don't have a main file, they just have a folder
+				if ( isset( $data['theme_folder'] ) && $data['theme_folder'] === $hook_extra['theme'] ) {
+					$is_gsm = true;
+					$package_type = 'theme';
+					break;
+				}
+			}
 		}
 
 		if ( ! $is_gsm && ! empty( self::$currently_installing_repo ) ) {
 			$is_gsm = true;
+			if ( ! empty( self::$currently_installing_type ) ) {
+				$package_type = self::$currently_installing_type;
+			}
 		}
 
 		// Also check domain as fallback
@@ -247,7 +263,7 @@ class CODESYNC_Updater {
 		}
 
 		// Validate ZIP archive
-		$validation = self::validate_plugin_zip( $tmp_file );
+		$validation = self::validate_package_zip( $tmp_file, $package_type );
 		if ( is_wp_error( $validation ) ) {
 			wp_delete_file( $tmp_file );
 			CODESYNC_Manager::log(
@@ -263,13 +279,13 @@ class CODESYNC_Updater {
 	}
 
 	/**
-	 * Validates if the downloaded ZIP is a valid WordPress Plugin.
-	 * It must contain at least one PHP file with a 'Plugin Name:' header.
+	 * Validates if the downloaded ZIP is a valid WordPress Plugin or Theme.
 	 *
 	 * @param string $zip_path Absolute path to the local ZIP file.
+	 * @param string $type     'plugin' or 'theme'.
 	 * @return bool|WP_Error True if valid, WP_Error if invalid.
 	 */
-	public static function validate_plugin_zip( $zip_path ) {
+	public static function validate_package_zip( $zip_path, $type = 'plugin' ) {
 		if ( ! class_exists( 'ZipArchive' ) ) {
 			// Skip validation to prevent error if ZipArchive is missing on host, but log a warning.
 			return true;
@@ -277,24 +293,37 @@ class CODESYNC_Updater {
 
 		$zip = new ZipArchive();
 		if ( true === $zip->open( $zip_path ) ) {
-			$has_plugin_header = false;
+			$is_valid = false;
 			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
 				$filename = $zip->getNameIndex( $i );
-				// Check only PHP files, ignore nested vendor files or files inside folders that are not plugin roots
-				if ( preg_match( '/\.php$/i', $filename ) ) {
-					$content = $zip->getFromIndex( $i, 8192 ); // Read first 8KB of file content
-					if ( false !== $content && false !== stripos( $content, 'Plugin Name:' ) ) {
-						$has_plugin_header = true;
-						break;
+
+				if ( 'plugin' === $type ) {
+					if ( preg_match( '/\.php$/i', $filename ) ) {
+						$content = $zip->getFromIndex( $i, 8192 );
+						if ( false !== $content && false !== stripos( $content, 'Plugin Name:' ) ) {
+							$is_valid = true;
+							break;
+						}
+					}
+				} elseif ( 'theme' === $type ) {
+					if ( preg_match( '/style\.css$/i', $filename ) ) {
+						$content = $zip->getFromIndex( $i, 8192 );
+						if ( false !== $content && false !== stripos( $content, 'Theme Name:' ) ) {
+							$is_valid = true;
+							break;
+						}
 					}
 				}
 			}
 			$zip->close();
 
-			if ( ! $has_plugin_header ) {
+			if ( ! $is_valid ) {
+				$msg = 'plugin' === $type 
+					? __( 'O ZIP baixado não contém um plugin WordPress válido (cabeçalho "Plugin Name:" ausente).', 'codesync-manager-for-github' )
+					: __( 'O ZIP baixado não contém um tema WordPress válido (cabeçalho "Theme Name:" ausente no style.css).', 'codesync-manager-for-github' );
 				return new WP_Error(
-					'codesync_invalid_plugin_zip',
-					__( 'O ZIP baixado não contém um plugin WordPress válido (cabeçalho "Plugin Name:" ausente).', 'codesync-manager-for-github' )
+					'codesync_invalid_package_zip',
+					$msg
 				);
 			}
 		} else {
@@ -320,6 +349,8 @@ class CODESYNC_Updater {
 	public static function upgrader_source_selection( $source, $remote_source, $upgrader, $hook_extra = array() ) {
 		// Verify if it's one of our plugins
 		$is_gsm = false;
+		$package_type = 'plugin';
+
 		if ( ! empty( $hook_extra['plugin'] ) ) {
 			$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
 			foreach ( $managed_plugins as $slug => $data ) {
@@ -328,10 +359,22 @@ class CODESYNC_Updater {
 					break;
 				}
 			}
+		} elseif ( ! empty( $hook_extra['theme'] ) ) {
+			$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+			foreach ( $managed_themes as $slug => $data ) {
+				if ( isset( $data['theme_folder'] ) && $data['theme_folder'] === $hook_extra['theme'] ) {
+					$is_gsm = true;
+					$package_type = 'theme';
+					break;
+				}
+			}
 		}
 
 		if ( ! $is_gsm && ! empty( self::$currently_installing_repo ) ) {
 			$is_gsm = true;
+			if ( ! empty( self::$currently_installing_type ) ) {
+				$package_type = self::$currently_installing_type;
+			}
 		}
 
 		if ( ! $is_gsm ) {
@@ -375,33 +418,55 @@ class CODESYNC_Updater {
 			$search_dir = trailingslashit( $search_dir );
 		}
 
-		// Search recursively for PHP files
+		// Search recursively for PHP or CSS files depending on type
 		$dir_iterator = new RecursiveDirectoryIterator( $search_dir );
 		$iterator     = new RecursiveIteratorIterator( $dir_iterator );
-		$regex        = new RegexIterator( $iterator, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH );
+		$regex_pattern = ( 'theme' === $package_type ) ? '/^.+style\.css$/i' : '/^.+\.php$/i';
+		$regex        = new RegexIterator( $iterator, $regex_pattern, RecursiveRegexIterator::GET_MATCH );
 
 		foreach ( $regex as $file_path => $object ) {
-			// Skip directories
 			if ( is_dir( $file_path ) ) {
 				continue;
 			}
-			$data = get_file_data( $file_path, array(
-				'PluginName' => 'Plugin Name',
-				'TextDomain' => 'Text Domain',
-			) );
 
-			if ( ! empty( $data['PluginName'] ) ) {
-				$main_file     = $file_path;
-				$text_domain   = trim( $data['TextDomain'] );
-				$fallback_name = sanitize_title( basename( $file_path, '.php' ) );
-				break;
+			if ( 'theme' === $package_type ) {
+				$data = get_file_data( $file_path, array(
+					'ThemeName'  => 'Theme Name',
+					'TextDomain' => 'Text Domain',
+					'RequiresPHP'=> 'Requires PHP',
+				) );
+
+				if ( ! empty( $data['ThemeName'] ) ) {
+					$main_file     = $file_path;
+					$text_domain   = trim( $data['TextDomain'] );
+					$fallback_name = sanitize_title( trim( $data['ThemeName'] ) );
+					$requires_php  = trim( $data['RequiresPHP'] );
+					break;
+				}
+			} else {
+				$data = get_file_data( $file_path, array(
+					'PluginName' => 'Plugin Name',
+					'TextDomain' => 'Text Domain',
+					'RequiresPHP'=> 'Requires PHP',
+				) );
+
+				if ( ! empty( $data['PluginName'] ) ) {
+					$main_file     = $file_path;
+					$text_domain   = trim( $data['TextDomain'] );
+					$fallback_name = sanitize_title( basename( $file_path, '.php' ) );
+					$requires_php  = trim( $data['RequiresPHP'] );
+					break;
+				}
 			}
 		}
 
 		if ( empty( $main_file ) ) {
+			$error_msg = ( 'theme' === $package_type ) 
+				? __( 'Não foi possível encontrar um arquivo style.css de tema válido dentro do ZIP extraído.', 'codesync-manager-for-github' )
+				: __( 'Não foi possível encontrar um arquivo PHP de plugin válido dentro do ZIP extraído.', 'codesync-manager-for-github' );
 			return new WP_Error(
 				'codesync_slug_resolution_failed',
-				__( 'Não foi possível encontrar um arquivo PHP de plugin válido dentro do ZIP extraído.', 'codesync-manager-for-github' )
+				$error_msg
 			);
 		}
 
@@ -415,6 +480,35 @@ class CODESYNC_Updater {
 				'codesync_invalid_slug',
 				__( 'Falha ao resolver um slug válido para o plugin.', 'codesync-manager-for-github' )
 			);
+		}
+
+		// FEATURE 1.3: Pre-flight Checks (Validação de PHP)
+		if ( ! empty( $requires_php ) && version_compare( phpversion(), $requires_php, '<' ) ) {
+			$is_cron = defined( 'DOING_CRON' ) && DOING_CRON;
+			$repo_to_log = ! empty( self::$currently_installing_repo ) ? self::$currently_installing_repo : 'sistema';
+
+			if ( $is_cron ) {
+				CODESYNC_Manager::log(
+					$repo_to_log,
+					'atualizacao',
+					'erro',
+					/* translators: 1: Required PHP, 2: Current PHP */
+					sprintf( __( 'Atualização automática bloqueada: O plugin requer PHP %1$s, mas o servidor roda %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
+				);
+				return new WP_Error(
+					'codesync_incompatible_php',
+					sprintf( __( 'Este plugin requer PHP versão %s ou superior. Sua versão atual é %s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
+				);
+			} else {
+				// Manual update: Just warn
+				CODESYNC_Manager::log(
+					$repo_to_log,
+					'atualizacao',
+					'aviso',
+					/* translators: 1: Required PHP, 2: Current PHP */
+					sprintf( __( 'Aviso: Plugin atualizado manualmente, mas ele requer PHP %1$s e o servidor roda %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
+				);
+			}
 		}
 
 		// Normalize paths for comparison
@@ -437,6 +531,10 @@ class CODESYNC_Updater {
 
 		if ( $plugin_root_dir !== $source_path ) {
 			// Plugin is nested inside a subdirectory. Move the subdirectory to the target destination.
+			
+			// FEATURE 1.1: Clean unwanted development folders before moving
+			self::clean_unwanted_development_folders( $plugin_root_dir );
+
 			if ( ! $wp_filesystem->move( $plugin_root_dir, $corrected_source ) ) {
 				return new WP_Error(
 					'codesync_rename_nested_failed',
@@ -445,6 +543,10 @@ class CODESYNC_Updater {
 			}
 		} else {
 			// Plugin is at the root. Rename the root source folder.
+			
+			// FEATURE 1.1: Clean unwanted development folders before moving
+			self::clean_unwanted_development_folders( $source_path );
+
 			if ( $source_path !== $corrected_source ) {
 				if ( ! $wp_filesystem->move( $source_path, $corrected_source ) ) {
 					return new WP_Error(
@@ -470,20 +572,32 @@ class CODESYNC_Updater {
 			return $reply;
 		}
 
-		if ( empty( $hook_extra['plugin'] ) ) {
-			return $reply;
-		}
-
-		$plugin_file = $hook_extra['plugin'];
-		$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
-
 		$is_gsm = false;
 		$repo_slug = '';
-		foreach ( $managed_plugins as $slug => $data ) {
-			if ( $data['plugin_file'] === $plugin_file ) {
-				$is_gsm = true;
-				$repo_slug = $slug;
-				break;
+		$target_dir_name = '';
+		$target_dir_path = '';
+
+		if ( ! empty( $hook_extra['plugin'] ) ) {
+			$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
+			foreach ( $managed_plugins as $slug => $data ) {
+				if ( $data['plugin_file'] === $hook_extra['plugin'] ) {
+					$is_gsm = true;
+					$repo_slug = $slug;
+					$target_dir_name = dirname( $hook_extra['plugin'] );
+					$target_dir_path = WP_PLUGIN_DIR . '/' . $target_dir_name;
+					break;
+				}
+			}
+		} elseif ( ! empty( $hook_extra['theme'] ) ) {
+			$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+			foreach ( $managed_themes as $slug => $data ) {
+				if ( isset( $data['theme_folder'] ) && $data['theme_folder'] === $hook_extra['theme'] ) {
+					$is_gsm = true;
+					$repo_slug = $slug;
+					$target_dir_name = $hook_extra['theme'];
+					$target_dir_path = get_theme_root() . '/' . $target_dir_name;
+					break;
+				}
 			}
 		}
 
@@ -492,13 +606,11 @@ class CODESYNC_Updater {
 		}
 
 		// Create backup
-		$plugin_folder = dirname( $plugin_file );
-		if ( '.' === $plugin_folder || empty( $plugin_folder ) ) {
+		if ( '.' === $target_dir_name || empty( $target_dir_name ) ) {
 			return $reply; // Single-file plugins (not inside a folder) are not backed up.
 		}
 
-		$plugin_dir_path = WP_PLUGIN_DIR . '/' . $plugin_folder;
-		if ( ! is_dir( $plugin_dir_path ) ) {
+		if ( ! is_dir( $target_dir_path ) ) {
 			return $reply;
 		}
 
@@ -507,28 +619,24 @@ class CODESYNC_Updater {
 			return $backup_root;
 		}
 
-		$backup_path = $backup_root . '/' . $plugin_folder;
-
-		// Remove any existing stale backup folder
-		if ( file_exists( $backup_path ) ) {
-			CODESYNC_Manager::delete_directory_recursive( $backup_path );
-		}
+		$backup_dir_name = $target_dir_name . '-' . time();
+		$backup_path = $backup_root . '/' . $backup_dir_name;
 
 		// Copy folder recursively
-		$copy_status = self::copy_directory( $plugin_dir_path, $backup_path );
+		$copy_status = self::copy_directory( $target_dir_path, $backup_path );
 
 		if ( ! $copy_status ) {
 			return new WP_Error(
 				'codesync_backup_failed',
-				__( 'Falha ao criar cópia de segurança do plugin existente. Atualização cancelada por segurança.', 'codesync-manager-for-github' )
+				__( 'Falha ao criar cópia de segurança do plugin/tema existente. Atualização cancelada por segurança.', 'codesync-manager-for-github' )
 			);
 		}
 
 		// Save backup details
 		self::$backup_info = array(
 			'repo'          => $repo_slug,
-			'plugin_folder' => $plugin_folder,
-			'src_path'      => $plugin_dir_path,
+			'folder'        => $target_dir_name,
+			'src_path'      => $target_dir_path,
 			'backup_path'   => $backup_path,
 		);
 
@@ -575,20 +683,17 @@ class CODESYNC_Updater {
 						$backup['repo'],
 						'restauracao',
 						'erro',
-						__( 'Atualização falhou e houve erro ao restaurar o backup. O plugin pode ter sido removido.', 'codesync-manager-for-github' )
+						__( 'Atualização falhou e houve erro ao restaurar o backup. O pacote pode ter sido removido.', 'codesync-manager-for-github' )
 					);
 				}
 			}
 		} else {
-			// SUCCESS - Delete backup directory to conserve space
-			if ( is_dir( $backup['backup_path'] ) ) {
-				CODESYNC_Manager::delete_directory_recursive( $backup['backup_path'] );
-			}
+			// SUCCESS - Keep backup directory to allow manual rollback later
 			CODESYNC_Manager::log(
 				$backup['repo'],
 				'atualizacao',
 				'sucesso',
-				__( 'Plugin atualizado com sucesso usando o fluxo nativo.', 'codesync-manager-for-github' )
+				__( 'Pacote atualizado com sucesso usando o fluxo nativo. Backup salvo para rollback.', 'codesync-manager-for-github' )
 			);
 		}
 
@@ -640,5 +745,35 @@ class CODESYNC_Updater {
 		closedir( $dir );
 
 		return $success;
+	}
+
+	/**
+	 * Cleans unwanted development folders from the extracted source before moving it.
+	 *
+	 * @param string $dir Path to the plugin directory being extracted.
+	 */
+	public static function clean_unwanted_development_folders( $dir ) {
+		$unwanted = array(
+			'node_modules',
+			'.github',
+			'tests',
+			'test',
+			'.git',
+			'.circleci',
+			'Gruntfile.js',
+			'gulpfile.js',
+			'webpack.config.js'
+		);
+
+		foreach ( $unwanted as $item ) {
+			$path = rtrim( $dir, '/' ) . '/' . $item;
+			if ( file_exists( $path ) ) {
+				if ( is_dir( $path ) ) {
+					CODESYNC_Manager::delete_directory_recursive( $path );
+				} else {
+					@unlink( $path );
+				}
+			}
+		}
 	}
 }

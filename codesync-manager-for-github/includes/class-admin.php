@@ -35,6 +35,7 @@ class CODESYNC_Admin {
 		add_action( 'wp_ajax_codesync_check_updates', array( __CLASS__, 'ajax_check_updates' ) );
 		add_action( 'wp_ajax_codesync_save_locale', array( __CLASS__, 'ajax_save_locale' ) );
 		add_action( 'wp_ajax_codesync_force_update', array( __CLASS__, 'ajax_force_update' ) );
+		add_action( 'wp_ajax_codesync_rollback', array( __CLASS__, 'ajax_rollback_plugin' ) );
 	}
 
 	/**
@@ -235,6 +236,10 @@ class CODESYNC_Admin {
 								<i data-lucide="search" class="codesync-icon"></i>
 								<?php esc_html_e( 'Verificar atualizações agora', 'codesync-manager-for-github' ); ?>
 							</button>
+							<button type="button" class="button" id="codesync-btn-update-all" style="margin-left: 10px;">
+								<i data-lucide="layers" class="codesync-icon"></i>
+								<?php esc_html_e( 'Atualizar Todos', 'codesync-manager-for-github' ); ?>
+							</button>
 							<span class="spinner codesync-spinner" id="codesync-scan-spinner"></span>
 						</div>
 
@@ -313,12 +318,26 @@ class CODESYNC_Admin {
 									<tr>
 										<th scope="row"><?php esc_html_e( 'Agendamento Automático', 'codesync-manager-for-github' ); ?></th>
 										<td>
-											<p><?php esc_html_e( 'O sistema verifica se há atualizações disponíveis para os plugins de forma automática duas vezes ao dia.', 'codesync-manager-for-github' ); ?></p>
+											<p><?php esc_html_e( 'As verificações de atualizações ocorrem automaticamente 2 vezes ao dia (Twice Daily) através do WP-Cron nativo.', 'codesync-manager-for-github' ); ?></p>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><?php esc_html_e( 'Webhook Real-time', 'codesync-manager-for-github' ); ?></th>
+										<td>
+											<p class="description" style="margin-bottom: 10px;">
+												<?php esc_html_e( 'Configure um Webhook no GitHub (em Settings > Webhooks do repositório) para ser notificado de atualizações instantaneamente.', 'codesync-manager-for-github' ); ?>
+											</p>
+											<p><strong><?php esc_html_e( 'Payload URL:', 'codesync-manager-for-github' ); ?></strong><br>
+											<code><?php echo esc_url( get_rest_url( null, 'codesync/v1/webhook' ) ); ?></code></p>
 											
-											<div class="codesync-info-notice">
-												<i data-lucide="info" class="codesync-icon"></i>
-												<p><em>“<?php esc_html_e( 'As verificações automáticas dependem de tráfego no site. Para sites de produção, recomenda-se desabilitar o WP-Cron no wp-config.php e agendar uma tarefa cron real no servidor chamando wp-cron.php.', 'codesync-manager-for-github' ); ?>”</em></p>
-											</div>
+											<p><strong><?php esc_html_e( 'Secret:', 'codesync-manager-for-github' ); ?></strong><br>
+											<code><?php echo esc_html( class_exists('CODESYNC_Webhook') ? CODESYNC_Webhook::get_or_create_secret() : 'Webhook não carregado.' ); ?></code></p>
+
+											<p><strong><?php esc_html_e( 'Content type:', 'codesync-manager-for-github' ); ?></strong><br>
+											<code>application/json</code></p>
+
+											<p><strong><?php esc_html_e( 'Events:', 'codesync-manager-for-github' ); ?></strong><br>
+											<?php esc_html_e( 'Selecione "Let me select individual events" e marque', 'codesync-manager-for-github' ); ?> <strong>Pushes</strong> <?php esc_html_e( 'e', 'codesync-manager-for-github' ); ?> <strong>Releases</strong>.</p>
 										</td>
 									</tr>
 								</tbody>
@@ -500,11 +519,34 @@ class CODESYNC_Admin {
 				</p>
 				<?php endif; ?>
 
+				<?php
+				// Check if rollback is available
+				$has_rollback = false;
+				$backup_dir = CODESYNC_Manager::get_secure_directory( 'codesync-backups' );
+				if ( ! is_wp_error( $backup_dir ) && is_dir( $backup_dir ) ) {
+					$folder_to_check = dirname( $plugin_file );
+					if ( '.' !== $folder_to_check && ! empty( $folder_to_check ) ) {
+						$files = new DirectoryIterator( $backup_dir );
+						foreach ( $files as $file ) {
+							if ( $file->isDir() && preg_match( '/^' . preg_quote( $folder_to_check, '/' ) . '-\d{10}$/', $file->getFilename() ) ) {
+								$has_rollback = true;
+								break;
+							}
+						}
+					}
+				}
+				?>
 				<div class="codesync-plugin-card-actions">
 					<button type="button" class="button button-primary codesync-btn-force-update" data-repo="<?php echo esc_attr( $repo ); ?>">
 						<i data-lucide="cloud-upload" class="codesync-icon"></i>
 						<?php esc_html_e( 'Atualizar', 'codesync-manager-for-github' ); ?>
 					</button>
+					<?php if ( $has_rollback ) : ?>
+					<button type="button" class="button codesync-btn-rollback" data-repo="<?php echo esc_attr( $repo ); ?>">
+						<i data-lucide="rotate-ccw" class="codesync-icon"></i>
+						<?php esc_html_e( 'Fazer Rollback', 'codesync-manager-for-github' ); ?>
+					</button>
+					<?php endif; ?>
 					<button type="button" class="button button-link-delete codesync-btn-remove" data-repo="<?php echo esc_attr( $repo ); ?>">
 						<?php esc_html_e( 'Parar de gerenciar', 'codesync-manager-for-github' ); ?>
 					</button>
@@ -783,35 +825,53 @@ class CODESYNC_Admin {
 				wp_send_json_error( array( 'message' => __( 'Nenhuma release ou branch disponível encontrada.', 'codesync-manager-for-github' ) ) );
 			}
 
+			$package_type = isset( $_POST['package_type'] ) ? sanitize_text_field( wp_unslash( $_POST['package_type'] ) ) : 'auto';
+
 			$package_url = '';
-			if ( ! empty( $target_release['assets'] ) ) {
-				$package_url = $target_release['assets'][0]['url'];
-			} elseif ( ! empty( $target_release['zipball_url'] ) ) {
-				$package_url = $target_release['zipball_url'];
+			if ( 'asset' === $package_type || 'auto' === $package_type ) {
+				if ( ! empty( $target_release['assets'] ) ) {
+					$package_url = $target_release['assets'][0]['url'];
+				} elseif ( ! empty( $target_release['zipball_url'] ) ) {
+					$package_url = $target_release['zipball_url'];
+				}
+			} elseif ( 'source' === $package_type ) {
+				if ( ! empty( $target_release['zipball_url'] ) ) {
+					$package_url = $target_release['zipball_url'];
+				}
 			}
 
 			if ( empty( $package_url ) ) {
 				wp_send_json_error( array( 'message' => __( 'Nenhum ZIP de pacote de download encontrado.', 'codesync-manager-for-github' ) ) );
 			}
 
-			// Native programmatic installation via Plugin_Upgrader
+			$package_type_wp = isset( $_POST['package_type_wp'] ) ? sanitize_text_field( wp_unslash( $_POST['package_type_wp'] ) ) : 'plugin';
+
+			// Native programmatic installation via Upgrader
 			include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 			include_once ABSPATH . 'wp-admin/includes/file.php';
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 			// Set the dynamic global variable so the upgrader filters recognize and resolve the canonical slug
 			CODESYNC_Updater::$currently_installing_repo           = $repo_slug;
 			CODESYNC_Updater::$currently_installing_subfolder      = $selected_subfolder;
+			CODESYNC_Updater::$currently_installing_type           = $package_type_wp;
 			CODESYNC_Updater::$currently_installing_canonical_slug = '';
 
-			// Force direct filesystem access — required for AJAX-based plugin installation
+			// Force direct filesystem access — required for AJAX-based installation
 			$codesync_fs_filter = function() { return 'direct'; };
 			add_filter( 'filesystem_method', $codesync_fs_filter, PHP_INT_MAX );
 
 			// Use silent/automatic skin
-			$skin     = new Automatic_Upgrader_Skin();
-			$upgrader = new Plugin_Upgrader( $skin );
-			$result   = $upgrader->install( $package_url, array( 'overwrite_package' => true ) );
+			$skin = new Automatic_Upgrader_Skin();
+			
+			if ( 'theme' === $package_type_wp ) {
+				include_once ABSPATH . 'wp-admin/includes/theme.php';
+				$upgrader = new Theme_Upgrader( $skin );
+			} else {
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
+				$upgrader = new Plugin_Upgrader( $skin );
+			}
+
+			$result = $upgrader->install( $package_url, array( 'overwrite_package' => true ) );
 
 			remove_filter( 'filesystem_method', $codesync_fs_filter, PHP_INT_MAX );
 
@@ -824,119 +884,91 @@ class CODESYNC_Admin {
 			// Clear dynamic variables
 			CODESYNC_Updater::$currently_installing_repo           = '';
 			CODESYNC_Updater::$currently_installing_subfolder      = '';
+			CODESYNC_Updater::$currently_installing_type           = '';
 			CODESYNC_Updater::$currently_installing_canonical_slug = '';
 
 			if ( is_wp_error( $result ) ) {
 				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 			}
 
-
 			if ( ! $result ) {
 				$skin_messages = method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array();
 				$detail        = ! empty( $skin_messages ) ? implode( ' ', array_slice( $skin_messages, -3 ) ) : '';
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( 'GSM Install Failed. Repo: ' . $repo_slug . ' | Skin: ' . implode( ' | ', $skin_messages ) );
-				}
 				wp_send_json_error( array(
-					'message' => __( 'A instalação do plugin falhou. Se o problema persistir, adicione define(\'FS_METHOD\', \'direct\'); ao wp-config.php antes do require_once ABSPATH.', 'codesync-manager-for-github' ) . ( $detail ? ' ' . $detail : '' ),
+					'message' => __( 'A instalação do pacote falhou. Detalhes: ', 'codesync-manager-for-github' ) . $detail,
 				) );
 			}
 
-
-			// Locate the newly installed plugin directory and file using slug resolution code
-			$plugins = get_plugins();
-			$installed_plugin_file = '';
-			$latest_version        = ltrim( $target_release['tag_name'], 'vV' );
-
-			// Strategy 1: Search by the resolved canonical slug from the upgrader source selection
-			if ( ! empty( $resolved_canonical_slug ) ) {
-				foreach ( $plugins as $file => $meta ) {
-					$parts_file = explode( '/', $file );
-					if ( $parts_file[0] === $resolved_canonical_slug ) {
-						$installed_plugin_file = $file;
-						break;
-					}
-				}
-			}
-
-			// Strategy 2: Fallback to searching by sanitized repository name
-			if ( empty( $installed_plugin_file ) ) {
-				$repo_slug_sanitized = sanitize_title( $repo );
-				foreach ( $plugins as $file => $meta ) {
-					$parts_file = explode( '/', $file );
-					if ( count( $parts_file ) > 1 && $parts_file[0] === $repo_slug_sanitized ) {
-						$installed_plugin_file = $file;
-						break;
-					}
-				}
-			}
-
-			// Strategy 3: Ultimate fallback - get the last modified plugin folder in WP_PLUGIN_DIR (within last 5 minutes)
-			if ( empty( $installed_plugin_file ) ) {
-				$folders_dir = glob( WP_PLUGIN_DIR . '/*', GLOB_ONLYDIR );
-				$latest_time = 0;
-				$latest_folder = '';
-				foreach ( $folders_dir as $f ) {
-					$mtime = filemtime( $f );
-					if ( $mtime > $latest_time && basename( $f ) !== 'codesync-manager-for-github' ) {
-						$latest_time = $mtime;
-						$latest_folder = basename( $f );
-					}
-				}
-
-				if ( ! empty( $latest_folder ) && ( time() - $latest_time ) < 300 ) {
-					$nested_files = glob( WP_PLUGIN_DIR . '/' . $latest_folder . '/*.php' );
-					foreach ( $nested_files as $nf ) {
-						$data_f = get_file_data( $nf, array( 'PluginName' => 'Plugin Name' ) );
-						if ( ! empty( $data_f['PluginName'] ) ) {
-							$installed_plugin_file = $latest_folder . '/' . basename( $nf );
-							break;
-						}
-					}
-				}
-			}
-
-			if ( empty( $installed_plugin_file ) ) {
-				wp_send_json_error( array( 'message' => __( 'O plugin foi extraído, mas o WordPress não conseguiu indexar o arquivo principal. Ative-o manualmente no painel Plugins.', 'codesync-manager-for-github' ) ) );
-			}
-
+			$latest_version = ltrim( $target_release['tag_name'], 'vV' );
 			$is_branch   = ! empty( $target_release['is_branch'] );
 			$branch_name = isset( $target_release['branch_name'] ) ? $target_release['branch_name'] : '';
 
-			// Add to managed list
-			$managed_plugins[ $repo_slug ] = array(
-				'plugin_file'    => $installed_plugin_file,
-				'latest_version' => $latest_version,
-				'status'         => 'atualizado',
-				'last_checked'   => current_time( 'mysql' ),
-				'html_url'       => 'https://github.com/' . $repo_slug,
-				'error_message'  => '',
-				'is_branch'      => $is_branch,
-				'branch_name'    => $branch_name,
-				'subfolder'      => $selected_subfolder,
-			);
+			if ( 'theme' === $package_type_wp ) {
+				$installed_theme_folder = $resolved_canonical_slug;
+				if ( empty( $installed_theme_folder ) ) {
+					$parts = explode( '/', $repo_slug );
+					$installed_theme_folder = sanitize_title( end( $parts ) );
+				}
+				$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+				$managed_themes[ $repo_slug ] = array(
+					'theme_folder'   => $installed_theme_folder,
+					'latest_version' => $latest_version,
+					'status'         => 'atualizado',
+					'last_checked'   => current_time( 'mysql' ),
+					'html_url'       => 'https://github.com/' . $repo_slug,
+					'error_message'  => '',
+					'is_branch'      => $is_branch,
+					'branch_name'    => $branch_name,
+				);
+				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_THEMES, $managed_themes );
+				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Tema gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
+				wp_send_json_success( array( 'message' => __( 'Tema gerenciado com sucesso!', 'codesync-manager-for-github' ) ) );
 
-			CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed_plugins );
-			CODESYNC_Manager::log(
-				$repo_slug,
-				'instalacao',
-				'sucesso',
-				/* translators: %s: version number */
-				sprintf( __( 'Plugin instalado com sucesso (Versão %s).', 'codesync-manager-for-github' ), $latest_version )
-			);
+			} else {
+				// Plugin Fallback Strategy 3
+				if ( empty( $installed_plugin_file ) ) {
+					$folders_dir = glob( WP_PLUGIN_DIR . '/*', GLOB_ONLYDIR );
+					$latest_time = 0;
+					$latest_folder = '';
+					foreach ( $folders_dir as $f ) {
+						$mtime = filemtime( $f );
+						if ( $mtime > $latest_time && basename( $f ) !== 'codesync-manager-for-github' ) {
+							$latest_time = $mtime;
+							$latest_folder = basename( $f );
+						}
+					}
+					if ( ! empty( $latest_folder ) && ( time() - $latest_time ) < 300 ) {
+						$nested_files = glob( WP_PLUGIN_DIR . '/' . $latest_folder . '/*.php' );
+						foreach ( $nested_files as $nf ) {
+							$data_f = get_file_data( $nf, array( 'PluginName' => 'Plugin Name' ) );
+							if ( ! empty( $data_f['PluginName'] ) ) {
+								$installed_plugin_file = $latest_folder . '/' . basename( $nf );
+								break;
+							}
+						}
+					}
+				}
 
-			$activate_url = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . urlencode( $installed_plugin_file ), 'activate-plugin_' . $installed_plugin_file );
+				if ( empty( $installed_plugin_file ) ) {
+					wp_send_json_error( array( 'message' => __( 'Plugin instalado com sucesso, mas não foi possível localizar seu arquivo principal no WordPress.', 'codesync-manager-for-github' ) ) );
+				}
 
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $installed_plugin_file );
-			$plugin_name = ! empty( $plugin_data['Name'] ) ? $plugin_data['Name'] : $repo;
-
-			wp_send_json_success( array(
-				'message'      => __( 'Plugin instalado com sucesso!', 'codesync-manager-for-github' ),
-				'plugin_name'  => $plugin_name,
-				'version'      => $latest_version,
-				'activate_url' => admin_url( $activate_url ),
-			) );
+				$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
+				$managed_plugins[ $repo_slug ] = array(
+					'plugin_file'    => $installed_plugin_file,
+					'latest_version' => $latest_version,
+					'status'         => 'atualizado',
+					'last_checked'   => current_time( 'mysql' ),
+					'html_url'       => 'https://github.com/' . $repo_slug,
+					'error_message'  => '',
+					'is_branch'      => $is_branch,
+					'branch_name'    => $branch_name,
+					'subfolder'      => $selected_subfolder,
+				);
+				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed_plugins );
+				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Plugin gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
+				wp_send_json_success( array( 'message' => __( 'Plugin gerenciado com sucesso!', 'codesync-manager-for-github' ) ) );
+			}
 		}
 
 		wp_send_json_error( array( 'message' => __( 'Ação inválida.', 'codesync-manager-for-github' ) ) );
@@ -1326,6 +1358,7 @@ class CODESYNC_Admin {
 					'ref'         => $rel['tag_name'],
 					'is_branch'   => ! empty( $rel['is_branch'] ),
 					'zipball_url' => $rel['zipball_url'],
+					'has_assets'  => ! empty( $rel['assets'] ),
 				);
 			}
 		}
@@ -1376,5 +1409,102 @@ class CODESYNC_Admin {
 			'folders'        => $folders,
 			'default_branch' => $default_branch,
 		) );
+	}
+
+	/**
+	 * AJAX endpoint: Rollback a plugin to its previous version.
+	 */
+	public static function ajax_rollback_plugin() {
+		check_ajax_referer( 'codesync_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
+		if ( empty( $repo_slug ) ) {
+			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$managed = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
+		if ( ! isset( $managed[ $repo_slug ] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Plugin não encontrado na lista gerenciada.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$plugin_file = isset( $managed[ $repo_slug ]['plugin_file'] ) ? $managed[ $repo_slug ]['plugin_file'] : '';
+		if ( empty( $plugin_file ) ) {
+			wp_send_json_error( array( 'message' => __( 'Arquivo do plugin desconhecido.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$plugin_folder = dirname( $plugin_file );
+		if ( '.' === $plugin_folder || empty( $plugin_folder ) ) {
+			wp_send_json_error( array( 'message' => __( 'Rollback não suportado para plugins de arquivo único.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$backup_dir = CODESYNC_Manager::get_secure_directory( 'codesync-backups' );
+		if ( is_wp_error( $backup_dir ) || ! is_dir( $backup_dir ) ) {
+			wp_send_json_error( array( 'message' => __( 'Diretório de backup não encontrado.', 'codesync-manager-for-github' ) ) );
+		}
+
+		// Find the latest backup for this plugin
+		$latest_backup_path = '';
+		$latest_time = 0;
+		$files = new DirectoryIterator( $backup_dir );
+		foreach ( $files as $file ) {
+			if ( $file->isDot() || ! $file->isDir() ) {
+				continue;
+			}
+			$folder_name = $file->getFilename();
+			if ( preg_match( '/^' . preg_quote( $plugin_folder, '/' ) . '-(\d{10})$/', $folder_name, $matches ) ) {
+				$timestamp = (int) $matches[1];
+				if ( $timestamp > $latest_time ) {
+					$latest_time = $timestamp;
+					$latest_backup_path = $file->getRealPath();
+				}
+			}
+		}
+
+		if ( empty( $latest_backup_path ) ) {
+			wp_send_json_error( array( 'message' => __( 'Nenhum backup recente encontrado para restauração.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$plugin_dir_path = WP_PLUGIN_DIR . '/' . $plugin_folder;
+
+		// Perform restoration
+		if ( is_dir( $plugin_dir_path ) ) {
+			CODESYNC_Manager::delete_directory_recursive( $plugin_dir_path );
+		}
+
+		if ( ! class_exists( 'CODESYNC_Updater' ) ) {
+			require_once __DIR__ . '/class-updater.php';
+		}
+
+		$restore = CODESYNC_Updater::copy_directory( $latest_backup_path, $plugin_dir_path );
+
+		if ( $restore ) {
+			// Delete the backup that was just restored
+			CODESYNC_Manager::delete_directory_recursive( $latest_backup_path );
+			
+			CODESYNC_Manager::log(
+				$repo_slug,
+				'restauracao',
+				'sucesso',
+				__( 'Rollback realizado com sucesso.', 'codesync-manager-for-github' )
+			);
+
+			// Force update check to sync versions
+			$managed[ $repo_slug ]['status'] = 'atualizacao_disponivel';
+			CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed );
+
+			wp_send_json_success( array( 'message' => __( 'Rollback concluído com sucesso. A versão anterior foi restaurada.', 'codesync-manager-for-github' ) ) );
+		} else {
+			CODESYNC_Manager::log(
+				$repo_slug,
+				'restauracao',
+				'erro',
+				__( 'Falha ao realizar o rollback. O backup não pôde ser copiado.', 'codesync-manager-for-github' )
+			);
+			wp_send_json_error( array( 'message' => __( 'Erro ao restaurar os arquivos. Verifique as permissões do diretório.', 'codesync-manager-for-github' ) ) );
+		}
 	}
 }

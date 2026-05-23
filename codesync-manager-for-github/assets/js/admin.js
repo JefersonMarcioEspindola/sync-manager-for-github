@@ -325,6 +325,7 @@ jQuery(document).ready(function($) {
 
 					bodyHtml += '<div class="codesync-modal-options" style="' + (optionsVisible ? '' : 'display: none;') + '">';
 					
+					var currentHasAssets = false;
 					// ── Source select (origin) ──────────────────────────────
 					bodyHtml += '  <div class="codesync-modal-field">';
 					bodyHtml += '    <label for="codesync-modal-ref">' + codesync_ajax.texts.select_source + '</label>';
@@ -332,6 +333,9 @@ jQuery(document).ready(function($) {
 					if (data.sources && data.sources.length > 0) {
 						$.each(data.sources, function(idx, src) {
 							var isSelected = (ref && src.ref === ref) || (!ref && (src.ref === data.default_branch || idx === 0));
+							if (isSelected) {
+								currentHasAssets = src.has_assets;
+							}
 							var selectedAttr = isSelected ? ' selected' : '';
 							var prefix = src.is_branch ? '🌿 ' : '🏷️ ';
 							bodyHtml += '<option value="' + src.ref + '"' + selectedAttr + '>' + prefix + src.name + '</option>';
@@ -341,6 +345,19 @@ jQuery(document).ready(function($) {
 					}
 					bodyHtml += '    </select>';
 					bodyHtml += '  </div>';
+
+					// ── Package Type select ─────────────────────────────────
+					if (currentHasAssets) {
+						bodyHtml += '  <div class="codesync-modal-field">';
+						bodyHtml += '    <label for="codesync-modal-package-type">' + (codesync_ajax.texts.package_type || 'Tipo de Pacote') + '</label>';
+						bodyHtml += '    <select id="codesync-modal-package-type">';
+						bodyHtml += '      <option value="asset">' + (codesync_ajax.texts.package_asset || 'Release Asset (Recomendado)') + '</option>';
+						bodyHtml += '      <option value="source">' + (codesync_ajax.texts.package_source || 'Source Code (Código Puro)') + '</option>';
+						bodyHtml += '    </select>';
+						bodyHtml += '  </div>';
+					} else {
+						bodyHtml += '  <input type="hidden" id="codesync-modal-package-type" value="auto">';
+					}
 
 					// ── Custom Folder Tree Picker ────────────────────────────
 					var folders   = data.folders || [];
@@ -543,6 +560,7 @@ jQuery(document).ready(function($) {
 
 		var selectedRef = $('#codesync-modal-ref').val() || '';
 		var selectedSubfolder = $('#codesync-modal-subfolder').val() || '';
+		var selectedPackageType = $('#codesync-modal-package-type').val() || 'auto';
 
 		$modalBody.html(
 			'<div class="codesync-modal-installing">' +
@@ -560,6 +578,7 @@ jQuery(document).ready(function($) {
 				repo: installRepo,
 				ref: selectedRef,
 				subfolder: selectedSubfolder,
+				package_type: selectedPackageType,
 				nonce: codesync_ajax.nonce
 			},
 			success: function(response) {
@@ -653,6 +672,99 @@ jQuery(document).ready(function($) {
 				$btn.prop('disabled', false);
 			}
 		});
+	});
+
+	/* ---------------------------------------------------- */
+	/* 7.5 Rollback Plugin                                  */
+	/* ---------------------------------------------------- */
+	$pluginsCards.on('click', '.codesync-btn-rollback', function(e) {
+		e.preventDefault();
+
+		var $btn = $(this);
+		var repo = $btn.data('repo');
+		if (!repo) return;
+
+		if (!confirm(codesync_ajax.texts.confirm_rollback || 'Tem certeza que deseja restaurar a versão anterior? O plugin será substituído.')) {
+			return;
+		}
+
+		$btn.prop('disabled', true);
+		var originalHtml = $btn.html();
+		$btn.html('<i data-lucide="loader-2" class="codesync-icon codesync-spin"></i> ' + (codesync_ajax.texts.restoring || 'Restaurando...'));
+		if (window.lucide) {
+			window.lucide.createIcons();
+		}
+
+		$.ajax({
+			url: codesync_ajax.url,
+			type: 'POST',
+			data: {
+				action: 'codesync_rollback',
+				repo: repo,
+				nonce: codesync_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					alert(response.data.message);
+					window.location.reload();
+				} else {
+					alert(response.data.message);
+					$btn.prop('disabled', false).html(originalHtml);
+					if (window.lucide) { window.lucide.createIcons(); }
+				}
+			},
+			error: function() {
+				alert(codesync_ajax.texts.error_generic || 'Erro ao realizar o rollback.');
+				$btn.prop('disabled', false).html(originalHtml);
+				if (window.lucide) { window.lucide.createIcons(); }
+			}
+		});
+	});
+
+	/* ---------------------------------------------------- */
+	/* 7.6 Bulk Update All Plugins                          */
+	/* ---------------------------------------------------- */
+	$('#codesync-btn-update-all').on('click', function(e) {
+		e.preventDefault();
+		
+		// Find all update buttons in cards that have 'codesync-status-update' badge
+		var $updates = $pluginsCards.find('.codesync-status-update').closest('.codesync-plugin-card').find('.codesync-btn-force-update');
+		if ($updates.length === 0) {
+			alert(codesync_ajax.texts.no_updates_available || 'Nenhuma atualização disponível no momento.');
+			return;
+		}
+
+		if (!confirm((codesync_ajax.texts.confirm_update_all || 'Deseja atualizar %d plugin(s) agora?').replace('%d', $updates.length))) {
+			return;
+		}
+
+		var $btnAll = $(this);
+		$btnAll.prop('disabled', true);
+		var originalHtml = $btnAll.html();
+		$btnAll.html('<i data-lucide="loader-2" class="codesync-icon codesync-spin"></i> ' + (codesync_ajax.texts.updating_all || 'Atualizando todos...'));
+		if (window.lucide) { window.lucide.createIcons(); }
+
+		// Trigger sequentially
+		var index = 0;
+		function triggerNext() {
+			if (index >= $updates.length) {
+				$btnAll.html('<i data-lucide="check" class="codesync-icon"></i> ' + (codesync_ajax.texts.updates_finished || 'Concluído'));
+				if (window.lucide) { window.lucide.createIcons(); }
+				setTimeout(function() {
+					window.location.reload();
+				}, 1500);
+				return;
+			}
+			var $btn = $($updates[index]);
+			$btn.trigger('click');
+			
+			// Wait a bit, then proceed to the next (assuming the click handles its own AJAX async, we just space them out)
+			// A better approach is to wait for the ajax request, but since we trigger a click, we just delay the next click.
+			setTimeout(triggerNext, 3000);
+			index++;
+		}
+		
+		triggerNext();
 	});
 
 	/* ---------------------------------------------------- */

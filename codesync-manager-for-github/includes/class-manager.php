@@ -23,6 +23,7 @@ class CODESYNC_Manager {
 	const OPTION_TOKEN      = 'codesync_encrypted_token';
 	const OPTION_USER       = 'codesync_connected_user';
 	const OPTION_PLUGINS    = 'codesync_managed_plugins';
+	const OPTION_THEMES     = 'codesync_managed_themes';
 	const OPTION_LOGS       = 'codesync_activity_logs';
 
 	/**
@@ -185,27 +186,58 @@ class CODESYNC_Manager {
 	 * Deletes all plugin temporary files and backups older than 24 hours.
 	 */
 	public static function run_garbage_collector() {
-		$dirs = array( 'codesync-temp', 'codesync-backups' );
-		foreach ( $dirs as $dir_name ) {
-			$dir_path = self::get_secure_directory( $dir_name );
-			if ( is_wp_error( $dir_path ) || ! is_dir( $dir_path ) ) {
-				continue;
-			}
-
+		// Clean codesync-temp (anything older than 24 hours)
+		$temp_dir = self::get_secure_directory( 'codesync-temp' );
+		if ( ! is_wp_error( $temp_dir ) && is_dir( $temp_dir ) ) {
 			$now = time();
-			$files = new DirectoryIterator( $dir_path );
+			$files = new DirectoryIterator( $temp_dir );
 			foreach ( $files as $file ) {
 				if ( $file->isDot() || $file->getFilename() === '.htaccess' || $file->getFilename() === 'index.php' ) {
 					continue;
 				}
-
-				// If file/folder is older than 24 hours, delete it
 				if ( $now - $file->getMTime() > DAY_IN_SECONDS ) {
 					$path = $file->getRealPath();
 					if ( $file->isDir() ) {
 						self::delete_directory_recursive( $path );
 					} else {
 						wp_delete_file( $path );
+					}
+				}
+			}
+		}
+
+		// Clean codesync-backups (keep only the 2 most recent per plugin)
+		$backups_dir = self::get_secure_directory( 'codesync-backups' );
+		if ( ! is_wp_error( $backups_dir ) && is_dir( $backups_dir ) ) {
+			$backups_by_plugin = array();
+			$files = new DirectoryIterator( $backups_dir );
+			foreach ( $files as $file ) {
+				if ( $file->isDot() || ! $file->isDir() ) {
+					continue;
+				}
+				$folder_name = $file->getFilename();
+				// Extract the plugin name by removing the timestamp suffix
+				if ( preg_match( '/^(.*?)-(\d{10})$/', $folder_name, $matches ) ) {
+					$plugin_slug = $matches[1];
+					$timestamp = (int) $matches[2];
+					$backups_by_plugin[ $plugin_slug ][] = array(
+						'path' => $file->getRealPath(),
+						'time' => $timestamp
+					);
+				}
+			}
+
+			foreach ( $backups_by_plugin as $plugin_slug => $plugin_backups ) {
+				// Sort by time descending (newest first)
+				usort( $plugin_backups, function($a, $b) {
+					return $b['time'] - $a['time'];
+				});
+
+				// Delete any backup after the second one
+				if ( count( $plugin_backups ) > 2 ) {
+					$to_delete = array_slice( $plugin_backups, 2 );
+					foreach ( $to_delete as $backup ) {
+						self::delete_directory_recursive( $backup['path'] );
 					}
 				}
 			}
