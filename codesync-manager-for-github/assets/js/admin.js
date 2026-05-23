@@ -466,6 +466,8 @@ jQuery(document).ready(function($) {
 						$modalFooter.off('click', '.codesync-btn-check-plugin').on('click', '.codesync-btn-check-plugin', function() {
 							$(this).hide(); // Hide the check button
 							$modalFooter.find('.codesync-btn-confirm-install').hide(); // Hide install until check finishes
+							$modal.find('.codesync-modal-title').text('Plugin Validation');
+							$modalBody.children().hide();
 							$modalBody.append(checkerTmpl);
 							setTimeout(function() {
 								runCheckerPipeline(repo);
