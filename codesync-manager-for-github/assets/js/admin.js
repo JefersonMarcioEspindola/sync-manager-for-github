@@ -186,9 +186,12 @@ jQuery(document).ready(function($) {
 			html += '    </div>';
 			html += '  </div>';
 			html += '  <p class="codesync-repo-desc" title="' + desc + '">' + desc + '</p>';
-			html += '  <div class="codesync-repo-footer">';
+			html += '  <div class="codesync-repo-footer" style="display:flex; justify-content:space-between; align-items:center;">';
 			html += '    <span class="codesync-repo-date">' + codesync_ajax.texts.updated_lbl.replace('%s', lastUpdated) + '</span>';
-			html += '    <button type="button" class="button button-small ' + btnClass + '" ' + btnAttr + '>' + btnLabel + '</button>';
+			html += '    <div>';
+			html += '      <button type="button" class="button button-small codesync-btn-inspect" data-repo="' + repo.full_name + '" title="Inspecionar Código (Checker)" style="margin-right: 5px;"><i data-lucide="shield-check" class="codesync-icon"></i></button>';
+			html += '      <button type="button" class="button button-small ' + btnClass + '" ' + btnAttr + '>' + btnLabel + '</button>';
+			html += '    </div>';
 			html += '  </div>';
 			html += '</div>';
 		});
@@ -977,4 +980,175 @@ jQuery(document).ready(function($) {
 
 	// Initialize all Lucide icons rendered by PHP on page load
 	lucide.createIcons();
+
+	/* ---------------------------------------------------- */
+	/* 11. CodeSync Checker Modal                           */
+	/* ---------------------------------------------------- */
+	var $checkerModal = $('#codesync-checker-modal');
+	var $checkerCloseBtn = $checkerModal.find('.codesync-modal-close, .codesync-modal-btn-cancel');
+	var $checkerSteps = $('#codesync-checker-steps');
+	var currentSessionId = '';
+	var currentBasePath = '';
+	var checkerLogs = [];
+
+	function openCheckerModal(repoSlug) {
+		$('#codesync-checker-repo-name').text(repoSlug);
+		$checkerModal.show();
+		$('.codesync-btn-copy-md').hide();
+		checkerLogs = [];
+		checkerLogs.push('# Relatório CodeSync Checker: ' + repoSlug);
+		checkerLogs.push('');
+
+		// Reset steps UI
+		$checkerSteps.find('.codesync-checker-step').each(function() {
+			var $step = $(this);
+			$step.removeClass('step-active step-passed step-warning step-error');
+			$step.find('.codesync-checker-step-icon').html('<i data-lucide="circle-dashed" class="codesync-icon"></i>').css('color', '#cbd5e1');
+			$step.find('.codesync-checker-step-body').hide().html('');
+		});
+		if (window.lucide) { window.lucide.createIcons(); }
+
+		runCheckerPipeline(repoSlug);
+	}
+
+	function appendStepResult($step, data) {
+		var html = '';
+		var status = data.status || 'success';
+		var color = '#10b981'; // green
+		var icon = 'check-circle-2';
+
+		if (status === 'error') {
+			color = '#ef4444'; // red
+			icon = 'x-circle';
+		} else if (status === 'warning') {
+			color = '#f59e0b'; // yellow
+			icon = 'alert-triangle';
+		}
+
+		$step.find('.codesync-checker-step-icon').html('<i data-lucide="' + icon + '" class="codesync-icon"></i>').css('color', color);
+		$step.addClass('step-' + status);
+
+		var mdLog = '## ' + $step.find('strong').text() + ' - ' + status.toUpperCase() + '\n';
+
+		if (data.errors && data.errors.length) {
+			html += '<ul style="color:#ef4444; margin-top:0;">';
+			data.errors.forEach(function(e) { 
+				html += '<li><i data-lucide="x" class="codesync-icon" style="width:12px;height:12px;"></i> ' + e + '</li>'; 
+				mdLog += '- 🔴 ' + e + '\n';
+			});
+			html += '</ul>';
+		}
+		if (data.warnings && data.warnings.length) {
+			html += '<ul style="color:#f59e0b; margin-top:0;">';
+			data.warnings.forEach(function(e) { 
+				html += '<li><i data-lucide="alert-triangle" class="codesync-icon" style="width:12px;height:12px;"></i> ' + e + '</li>'; 
+				mdLog += '- 🟡 ' + e + '\n';
+			});
+			html += '</ul>';
+		}
+		if (data.passed && data.passed.length) {
+			html += '<ul style="color:#10b981; margin-top:0; margin-bottom:0;">';
+			data.passed.forEach(function(e) { 
+				html += '<li><i data-lucide="check" class="codesync-icon" style="width:12px;height:12px;"></i> ' + e + '</li>'; 
+				mdLog += '- 🟢 ' + e + '\n';
+			});
+			html += '</ul>';
+		}
+
+		checkerLogs.push(mdLog);
+		$step.find('.codesync-checker-step-body').html(html).slideDown();
+		if (window.lucide) { window.lucide.createIcons(); }
+	}
+
+	function runStep(action, payload, stepId, onSuccess) {
+		var $step = $checkerSteps.find('.codesync-checker-step[data-step="' + stepId + '"]');
+		$step.addClass('step-active');
+		$step.find('.codesync-checker-step-icon').html('<i data-lucide="loader-2" class="codesync-icon codesync-spin"></i>').css('color', '#3b82f6');
+		if (window.lucide) { window.lucide.createIcons(); }
+
+		var data = $.extend({ action: action, nonce: codesync_ajax.nonce }, payload);
+
+		$.ajax({
+			url: codesync_ajax.url,
+			type: 'POST',
+			data: data,
+			success: function(response) {
+				$step.removeClass('step-active');
+				if (response.success) {
+					appendStepResult($step, response.data.result);
+					onSuccess(response.data);
+				} else {
+					$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
+					$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">Erro fatal: ' + response.data.message + '</p>').slideDown();
+					if (window.lucide) { window.lucide.createIcons(); }
+					// Run cleanup if we have session id
+					if (currentSessionId) {
+						runStep('codesync_checker_cleanup', { session_id: currentSessionId }, 'cleanup', function(){});
+					}
+					$('.codesync-btn-copy-md').show();
+				}
+			},
+			error: function() {
+				$step.removeClass('step-active');
+				$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
+				$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">Erro de conexão AJAX.</p>').slideDown();
+				if (window.lucide) { window.lucide.createIcons(); }
+				$('.codesync-btn-copy-md').show();
+			}
+		});
+	}
+
+	function runCheckerPipeline(repoSlug) {
+		// Step 1: Download
+		runStep('codesync_checker_download', { repo: repoSlug }, 'download', function(data) {
+			currentSessionId = data.session_id;
+			currentBasePath = data.base_path;
+			
+			// Step 2: Headers
+			runStep('codesync_checker_headers', { base_path: currentBasePath }, 'headers', function() {
+				
+				// Step 3: Security
+				runStep('codesync_checker_security', { base_path: currentBasePath }, 'security', function() {
+					
+					// Step 4: Deprecated
+					runStep('codesync_checker_deprecated', { base_path: currentBasePath }, 'deprecated', function() {
+						
+						// Step 5: Cleanup (silent background)
+						$.post(codesync_ajax.url, { action: 'codesync_checker_cleanup', session_id: currentSessionId, nonce: codesync_ajax.nonce });
+						
+						$('.codesync-btn-copy-md').show();
+					});
+				});
+			});
+		});
+	}
+
+	$('body').on('click', '.codesync-btn-inspect', function(e) {
+		e.preventDefault();
+		var repo = $(this).data('repo');
+		if (repo) {
+			openCheckerModal(repo);
+		}
+	});
+
+	$checkerCloseBtn.on('click', function(e) {
+		e.preventDefault();
+		$checkerModal.hide();
+		if (currentSessionId) {
+			$.post(codesync_ajax.url, { action: 'codesync_checker_cleanup', session_id: currentSessionId, nonce: codesync_ajax.nonce });
+		}
+	});
+
+	$checkerSteps.on('click', '.codesync-checker-step-header', function() {
+		$(this).siblings('.codesync-checker-step-body').slideToggle();
+	});
+
+	$('.codesync-btn-copy-md').on('click', function(e) {
+		e.preventDefault();
+		var text = checkerLogs.join('\n');
+		navigator.clipboard.writeText(text).then(function() {
+			alert('Relatório copiado para a área de transferência!');
+		});
+	});
+
 });

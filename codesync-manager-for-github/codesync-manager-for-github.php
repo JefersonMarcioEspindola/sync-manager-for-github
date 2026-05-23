@@ -47,10 +47,10 @@ spl_autoload_register( function( $class_name ) {
  */
 function codesync_init() {
 
-
 	// Initialize core components
 	CODESYNC_Updater::init();
 	CODESYNC_Webhook::init();
+	CODESYNC_Checker::init();
 
 	if ( is_admin() ) {
 		CODESYNC_Admin::init();
