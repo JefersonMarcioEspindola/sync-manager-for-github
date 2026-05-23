@@ -925,6 +925,10 @@
 	100% { transform: rotate(360deg); }
 }
 
+.codesync-spin {
+	animation: codesync-spin 1s linear infinite;
+}
+
 .codesync-modal-success-banner {
 	display: flex;
 	align-items: center;
