@@ -1099,7 +1099,7 @@ jQuery(document).ready(function($) {
 		}
 
 		checkerLogs.push(mdLog);
-		$step.find('.codesync-checker-step-body').html(html).slideDown();
+		$step.find('.codesync-checker-step-body').html(html); // Removed .slideDown() per user request
 		if (window.lucide) { window.lucide.createIcons(); }
 	}
 
@@ -1110,33 +1110,40 @@ jQuery(document).ready(function($) {
 		if (window.lucide) { window.lucide.createIcons(); }
 
 		var data = $.extend({ action: action, nonce: codesync_ajax.nonce }, payload);
+		var startTime = new Date().getTime();
 
 		$.ajax({
 			url: codesync_ajax.url,
 			type: 'POST',
 			data: data,
 			success: function(response) {
-				$step.removeClass('step-active');
-				if (response.success) {
-					appendStepResult($step, response.data.result);
-					onSuccess(response.data);
-				} else {
-					$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
-					$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">Erro fatal: ' + response.data.message + '</p>').slideDown();
-					if (window.lucide) { window.lucide.createIcons(); }
-					// Run cleanup if we have session id
-					if (currentSessionId) {
-						$.post(codesync_ajax.url, { action: 'codesync_checker_cleanup', session_id: currentSessionId, nonce: codesync_ajax.nonce });
+				var delay = Math.max(0, 2000 - (new Date().getTime() - startTime));
+				setTimeout(function() {
+					$step.removeClass('step-active');
+					if (response.success) {
+						appendStepResult($step, response.data.result);
+						onSuccess(response.data);
+					} else {
+						$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
+						$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">Erro fatal: ' + response.data.message + '</p>').slideDown();
+						if (window.lucide) { window.lucide.createIcons(); }
+						// Run cleanup if we have session id
+						if (currentSessionId) {
+							$.post(codesync_ajax.url, { action: 'codesync_checker_cleanup', session_id: currentSessionId, nonce: codesync_ajax.nonce });
+						}
+						$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
 					}
-					$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
-				}
+				}, delay);
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				$step.removeClass('step-active').addClass('step-error');
-				$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
-				$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">AJAX Error: ' + textStatus + ' - ' + errorThrown + '</p>').slideDown();
-				if (window.lucide) { window.lucide.createIcons(); }
-				$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
+				var delay = Math.max(0, 2000 - (new Date().getTime() - startTime));
+				setTimeout(function() {
+					$step.removeClass('step-active').addClass('step-error');
+					$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
+					$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">AJAX Error: ' + textStatus + ' - ' + errorThrown + '</p>').slideDown();
+					if (window.lucide) { window.lucide.createIcons(); }
+					$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
+				}, delay);
 			}
 		});
 	}
