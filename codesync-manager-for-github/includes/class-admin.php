@@ -1232,6 +1232,7 @@ class CODESYNC_Admin {
 
 		CODESYNC_Updater::$currently_installing_repo      = $repo_slug;
 		CODESYNC_Updater::$currently_installing_subfolder = $selected_subfolder;
+		CODESYNC_Updater::$ignore_php_check               = ! empty( $_POST['ignore_php_check'] );
 
 		$codesync_fs_filter = function() { return 'direct'; };
 		add_filter( 'filesystem_method', $codesync_fs_filter, PHP_INT_MAX );
@@ -1247,7 +1248,10 @@ class CODESYNC_Admin {
 		CODESYNC_Updater::$currently_installing_subfolder = '';
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( array( 
+				'message' => $result->get_error_message(),
+				'code'    => $result->get_error_code()
+			) );
 		}
 
 		if ( ! $result ) {

@@ -23,8 +23,15 @@ class CODESYNC_Updater {
 	 * @var string
 	 */
 	public static $currently_installing_repo = '';
-	public static $currently_installing_type = '';
+	public static $currently_installing_type = 'plugin';
 	public static $currently_installing_canonical_slug = '';
+
+	/**
+	 * Flag to bypass PHP version requirement check on manual forced updates.
+	 *
+	 * @var bool
+	 */
+	public static $ignore_php_check = false;
 
 	/**
 	 * Tracks the subfolder of the repository currently being installed via the admin panel.
@@ -484,29 +491,27 @@ class CODESYNC_Updater {
 
 		// FEATURE 1.3: Pre-flight Checks (Validação de PHP)
 		if ( ! empty( $requires_php ) && version_compare( phpversion(), $requires_php, '<' ) ) {
-			$is_cron = defined( 'DOING_CRON' ) && DOING_CRON;
 			$repo_to_log = ! empty( self::$currently_installing_repo ) ? self::$currently_installing_repo : 'sistema';
-
-			if ( $is_cron ) {
-				CODESYNC_Manager::log(
-					$repo_to_log,
-					'atualizacao',
-					'erro',
-					/* translators: 1: Required PHP, 2: Current PHP */
-					sprintf( __( 'Atualização automática bloqueada: O plugin requer PHP %1$s, mas o servidor roda %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
-				);
+			if ( wp_doing_cron() ) {
 				return new WP_Error(
-					'codesync_incompatible_php',
+					'codesync_php_version_mismatch',
+					/* translators: 1: Required PHP, 2: Current PHP */
 					sprintf( __( 'Este plugin requer PHP versão %s ou superior. Sua versão atual é %s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
 				);
+			} elseif ( ! self::$ignore_php_check ) {
+				// Block manual update to prompt confirmation
+				return new WP_Error( 
+					'codesync_php_version_mismatch_manual', 
+					sprintf( __( 'O pacote requer PHP %s e o servidor possui %s. Deseja forçar a instalação por sua conta e risco?', 'codesync-manager-for-github' ), $requires_php, phpversion() ) 
+				);
 			} else {
-				// Manual update: Just warn
+				// Manual update: User confirmed, just warn
 				CODESYNC_Manager::log(
 					$repo_to_log,
 					'atualizacao',
 					'aviso',
 					/* translators: 1: Required PHP, 2: Current PHP */
-					sprintf( __( 'Aviso: Plugin atualizado manualmente, mas ele requer PHP %1$s e o servidor roda %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
+					sprintf( __( 'Aviso: Pacote atualizado manualmente (ignorado verificação de PHP), mas requer PHP %1$s e o servidor roda %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
 				);
 			}
 		}
@@ -597,6 +602,24 @@ class CODESYNC_Updater {
 					$target_dir_name = $hook_extra['theme'];
 					$target_dir_path = get_theme_root() . '/' . $target_dir_name;
 					break;
+				}
+			}
+		}
+
+		if ( ! $is_gsm && ! empty( self::$currently_installing_repo ) ) {
+			$is_gsm = true;
+			$repo_slug = self::$currently_installing_repo;
+			if ( self::$currently_installing_type === 'theme' ) {
+				$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+				if ( isset( $managed_themes[ $repo_slug ] ) ) {
+					$target_dir_name = $managed_themes[ $repo_slug ]['theme_folder'];
+					$target_dir_path = get_theme_root() . '/' . $target_dir_name;
+				}
+			} else {
+				$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
+				if ( isset( $managed_plugins[ $repo_slug ] ) ) {
+					$target_dir_name = dirname( $managed_plugins[ $repo_slug ]['plugin_file'] );
+					$target_dir_path = WP_PLUGIN_DIR . '/' . $target_dir_name;
 				}
 			}
 		}

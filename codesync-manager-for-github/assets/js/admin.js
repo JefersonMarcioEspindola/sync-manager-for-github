@@ -784,34 +784,48 @@ jQuery(document).ready(function($) {
 		var origLabel = $btn.html();
 		$btn.prop('disabled', true).html('<i data-lucide="loader-circle" class="codesync-icon codesync-spin"></i> ' + codesync_ajax.texts.force_updating);
 
-		$.ajax({
-			url: codesync_ajax.url,
-			type: 'POST',
-			data: {
-				action: 'codesync_force_update',
-				repo: repo,
-				nonce: codesync_ajax.nonce
-			},
-			success: function(response) {
-				$btn.prop('disabled', false).html(origLabel);
-				if (response.success) {
-					if (response.data.table_html) {
-						$pluginsCards.html(response.data.table_html);
-						lucide.createIcons({ nodes: [$pluginsCards[0]] });
+		function performSingleUpdate(repoSlug, ignorePhp) {
+			$.ajax({
+				url: codesync_ajax.url,
+				type: 'POST',
+				data: {
+					action: 'codesync_force_update',
+					repo: repoSlug,
+					nonce: codesync_ajax.nonce,
+					ignore_php_check: ignorePhp ? 1 : 0
+				},
+				success: function(response) {
+					if (!response.success && response.data && response.data.code === 'codesync_php_version_mismatch_manual') {
+						if (confirm(response.data.message)) {
+							performSingleUpdate(repoSlug, true);
+						} else {
+							$btn.prop('disabled', false).html(origLabel);
+						}
+						return;
 					}
-					if (response.data.logs_html) {
-						$('#codesync-logs-table-wrapper').html(response.data.logs_html);
+
+					$btn.prop('disabled', false).html(origLabel);
+					if (response.success) {
+						if (response.data.table_html) {
+							$pluginsCards.html(response.data.table_html);
+							lucide.createIcons({ nodes: [$pluginsCards[0]] });
+						}
+						if (response.data.logs_html) {
+							$('#codesync-logs-table-wrapper').html(response.data.logs_html);
+						}
+						alert(response.data.message);
+					} else {
+						alert(codesync_ajax.texts.force_update_err.replace('%s', response.data.message));
 					}
-					alert(response.data.message);
-				} else {
-					alert(codesync_ajax.texts.force_update_err.replace('%s', response.data.message));
+				},
+				error: function() {
+					$btn.prop('disabled', false).html(origLabel);
+					alert(codesync_ajax.texts.force_update_fail);
 				}
-			},
-			error: function() {
-				$btn.prop('disabled', false).html(origLabel);
-				alert(codesync_ajax.texts.force_update_fail);
-			}
-		});
+			});
+		}
+
+		performSingleUpdate(repo, false);
 	});
 
 	/* ---------------------------------------------------- */
