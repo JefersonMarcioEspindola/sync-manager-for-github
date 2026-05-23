@@ -567,10 +567,10 @@ class CODESYNC_Admin {
 				</div>
 
 				<div class="codesync-plugin-versions">
-					<span><?php esc_html_e( 'Instalado:', 'codesync-manager-for-github' ); ?> <code><?php echo esc_html( $installed_version ); ?></code></span>
+					<span><?php esc_html_e( 'Installed:', 'codesync-manager-for-github' ); ?> <code><?php echo esc_html( $installed_version ); ?></code></span>
 					<?php if ( $latest_version !== $installed_version ) : ?>
 						<span class="codesync-versions-arrow">→</span>
-						<span><?php esc_html_e( 'Disponível:', 'codesync-manager-for-github' ); ?> <code><?php echo esc_html( $latest_version ); ?></code></span>
+						<span><?php esc_html_e( 'Available:', 'codesync-manager-for-github' ); ?> <code><?php echo esc_html( $latest_version ); ?></code></span>
 					<?php endif; ?>
 				</div>
 
@@ -578,7 +578,7 @@ class CODESYNC_Admin {
 					<?php if ( isset( $data['theme_folder'] ) ) : ?>
 						<span class="codesync-branch-label" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;">
 							<i data-lucide="layout-template" class="codesync-icon" style="width:12px;height:12px;margin-right:3px;"></i>
-							<?php esc_html_e( 'Tema', 'codesync-manager-for-github' ); ?>
+							<?php esc_html_e( 'Theme', 'codesync-manager-for-github' ); ?>
 						</span>
 					<?php else : ?>
 						<span class="codesync-branch-label" style="background:#f3e8ff; color:#7e22ce; border:1px solid #e9d5ff;">
@@ -665,7 +665,7 @@ class CODESYNC_Admin {
 		$logs = get_option( CODESYNC_Manager::OPTION_LOGS, array() );
 		if ( empty( $logs ) || ! is_array( $logs ) ) {
 			?>
-			<p class="codesync-no-logs-msg"><?php esc_html_e( 'Nenhuma atividade registrada ainda.', 'codesync-manager-for-github' ); ?></p>
+			<p class="codesync-no-logs-msg"><?php esc_html_e( 'No activity registered yet.', 'codesync-manager-for-github' ); ?></p>
 			<?php
 			return;
 		}
@@ -674,11 +674,11 @@ class CODESYNC_Admin {
 		<table class="wp-list-table widefat fixed striped table-view-list codesync-logs-table">
 			<thead>
 				<tr>
-					<th style="width: 160px;"><?php esc_html_e( 'Data/Hora', 'codesync-manager-for-github' ); ?></th>
-					<th style="width: 200px;"><?php esc_html_e( 'Repositório', 'codesync-manager-for-github' ); ?></th>
-					<th style="width: 140px;"><?php esc_html_e( 'Ação', 'codesync-manager-for-github' ); ?></th>
-					<th style="width: 110px;"><?php esc_html_e( 'Resultado', 'codesync-manager-for-github' ); ?></th>
-					<th><?php esc_html_e( 'Mensagem', 'codesync-manager-for-github' ); ?></th>
+					<th style="width: 160px;"><?php esc_html_e( 'Date/Time', 'codesync-manager-for-github' ); ?></th>
+					<th style="width: 200px;"><?php esc_html_e( 'Repository', 'codesync-manager-for-github' ); ?></th>
+					<th style="width: 140px;"><?php esc_html_e( 'Action', 'codesync-manager-for-github' ); ?></th>
+					<th style="width: 110px;"><?php esc_html_e( 'Result', 'codesync-manager-for-github' ); ?></th>
+					<th><?php esc_html_e( 'Message', 'codesync-manager-for-github' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
