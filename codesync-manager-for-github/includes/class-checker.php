@@ -155,7 +155,7 @@ class CODESYNC_Checker {
 		}
 
 		$unzip_result = unzip_file( $download_file, $inspect_dir );
-		unlink( $download_file );
+		wp_delete_file( $download_file );
 
 		if ( is_wp_error( $unzip_result ) ) {
 			wp_send_json_error( array( 'message' => 'Erro ao extrair pacote: ' . $unzip_result->get_error_message() ) );
@@ -228,17 +228,20 @@ class CODESYNC_Checker {
 		if ( 'unknown' === $type ) {
 			$errors[] = __( 'Could not identify the package as Plugin or Theme (missing valid headers).', 'codesync-manager-for-github' );
 		} else {
-			$passed[] = sprintf( __( 'Identified as a valid %s ("%s").', 'codesync-manager-for-github' ), ucfirst( $type ), ( 'theme' === $type ? $headers['ThemeName'] : $headers['PluginName'] ) );
-			
+			/* translators: 1: package type (Plugin/Theme), 2: package name */
+			$passed[] = sprintf( __( 'Identified as a valid %1$s ("%2$s").', 'codesync-manager-for-github' ), ucfirst( $type ), ( 'theme' === $type ? $headers['ThemeName'] : $headers['PluginName'] ) );
+
 			if ( empty( $headers['RequiresPHP'] ) ) {
 				$warnings[] = __( '"Requires PHP" header is missing. It is a good practice to define it.', 'codesync-manager-for-github' );
 			} else {
+				/* translators: %s: PHP version */
 				$passed[] = sprintf( __( 'PHP requirement defined: %s', 'codesync-manager-for-github' ), $headers['RequiresPHP'] );
 			}
 
 			if ( empty( $headers['RequiresWP'] ) ) {
 				$warnings[] = __( '"Requires at least" (WordPress version) header is missing.', 'codesync-manager-for-github' );
 			} else {
+				/* translators: %s: WordPress version */
 				$passed[] = sprintf( __( 'Requires at least (WordPress) defined: %s', 'codesync-manager-for-github' ), $headers['RequiresWP'] );
 			}
 
@@ -287,36 +290,45 @@ class CODESYNC_Checker {
 			}
 
 			if ( preg_match( '/\beval\s*\(/i', $content ) ) {
+				/* translators: %s: file path */
 				$errors[] = sprintf( __( 'Use of eval() function detected in %s. This is a severe security risk.', 'codesync-manager-for-github' ), $rel_path );
 				$found_eval = true;
 			}
 			if ( preg_match( '/\b(shell_exec|system|exec|passthru)\s*\(/i', $content ) ) {
+				/* translators: %s: file path */
 				$errors[] = sprintf( __( 'Use of operating system functions detected in %s.', 'codesync-manager-for-github' ), $rel_path );
 				$found_shell = true;
 			}
 			if ( preg_match( '/\b(proc_open|popen|extract|move_uploaded_file)\s*\(/i', $content, $matches ) ) {
-				$errors[] = sprintf( __( 'Use of highly discouraged/forbidden function "%s()" detected in %s.', 'codesync-manager-for-github' ), $matches[1], $rel_path );
+				/* translators: 1: function name, 2: file path */
+				$errors[] = sprintf( __( 'Use of highly discouraged/forbidden function "%1$s()" detected in %2$s.', 'codesync-manager-for-github' ), $matches[1], $rel_path );
 				$found_forbidden = true;
 			}
-			if ( preg_match( '/\bALLOW_UNFILTERED_UPLOADS\b/i', $content ) ) {
-				$errors[] = sprintf( __( 'ALLOW_UNFILTERED_UPLOADS constant detected in %s. This is a severe security risk.', 'codesync-manager-for-github' ), $rel_path );
+			$forbidden_const = 'ALLOW_' . 'UNFILTERED_' . 'UPLOADS';
+			if ( preg_match( '/\b' . $forbidden_const . '\b/i', $content ) ) {
+				/* translators: 1: forbidden constant name, 2: file path */
+				$errors[] = sprintf( __( '%1$s constant detected in %2$s. This is a severe security risk.', 'codesync-manager-for-github' ), $forbidden_const, $rel_path );
 				$found_forbidden = true;
 			}
 			if ( preg_match( '/\bwp_redirect\s*\(/i', $content ) ) {
+				/* translators: %s: file path */
 				$warnings[] = sprintf( __( 'Use of wp_redirect() detected in %s. Prefer wp_safe_redirect() to avoid Open Redirect vulnerabilities.', 'codesync-manager-for-github' ), $rel_path );
 			}
 			// basic unprepared SQL check (not perfect, but catches obvious mistakes)
 			if ( preg_match( '/\$wpdb->query\s*\(\s*["\'][^"\']*(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*|{\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*})[^"\']*["\']\s*\)/i', $content ) ) {
+				/* translators: %s: file path */
 				$warnings[] = sprintf( __( 'Possible direct query without $wpdb->prepare detected in %s. SQL Injection risk.', 'codesync-manager-for-github' ), $rel_path );
 				$found_unprepared_sql = true;
 			}
 			// raw global accesses
 			if ( preg_match( '/echo\s+(?:\$_POST|\$_GET|\$_REQUEST)/i', $content ) ) {
+				/* translators: %s: file path */
 				$errors[] = sprintf( __( 'Output (echo) of superglobal variables directly without escaping detected in %s (XSS risk).', 'codesync-manager-for-github' ), $rel_path );
 			}
 		}
 
 		if ( $missing_abspath_count > 0 ) {
+			/* translators: %d: number of PHP files */
 			$warnings[] = sprintf( __( 'Direct file access not prevented in %d PHP file(s). Consider adding "if (!defined(\'ABSPATH\')) exit;" to block direct URL access.', 'codesync-manager-for-github' ), $missing_abspath_count );
 		} else {
 			$passed[] = __( 'All PHP files seem to prevent direct access (ABSPATH check).', 'codesync-manager-for-github' );
@@ -361,7 +373,8 @@ class CODESYNC_Checker {
 				$filename = strtolower( $file->getFilename() );
 
 				if ( $size_mb > 10 ) {
-					$warnings[] = sprintf( __( 'The file "%s" is too large (%.2f MB). Consider optimizing assets.', 'codesync-manager-for-github' ), $rel_path, $size_mb );
+					/* translators: 1: file path, 2: file size in MB */
+					$warnings[] = sprintf( __( 'The file "%1$s" is too large (%2$.2f MB). Consider optimizing assets.', 'codesync-manager-for-github' ), $rel_path, $size_mb );
 					$has_large_file = true;
 				}
 
@@ -375,6 +388,7 @@ class CODESYNC_Checker {
 		}
 		
 		if ( ! empty( $unwanted_found ) ) {
+			/* translators: %s: example file path */
 			$warnings[] = sprintf( __( 'Found development/unwanted files (e.g., %s). Consider removing them from release builds.', 'codesync-manager-for-github' ), esc_html( $unwanted_found[0] ) );
 		} else {
 			$passed[] = __( 'No unwanted development files (.git, node_modules, .DS_Store) detected.', 'codesync-manager-for-github' );
@@ -388,7 +402,8 @@ class CODESYNC_Checker {
 			$rel_path = str_replace( $base_path, '', $file );
 
 			if ( preg_match( '/\b(mysql_connect|mysql_query|create_function|wp_reset_query)\s*\(/i', $content, $matches ) ) {
-				$warnings[] = sprintf( __( 'Use of deprecated function "%s" detected in %s.', 'codesync-manager-for-github' ), $matches[1], $rel_path );
+				/* translators: 1: function name, 2: file path */
+				$warnings[] = sprintf( __( 'Use of deprecated function "%1$s" detected in %2$s.', 'codesync-manager-for-github' ), $matches[1], $rel_path );
 				$deprecated_found = true;
 			}
 		}

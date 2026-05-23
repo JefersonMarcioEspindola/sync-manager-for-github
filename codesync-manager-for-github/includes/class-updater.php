@@ -496,13 +496,14 @@ class CODESYNC_Updater {
 				return new WP_Error(
 					'codesync_php_version_mismatch',
 					/* translators: 1: Required PHP, 2: Current PHP */
-					sprintf( __( 'Este plugin requer PHP versão %s ou superior. Sua versão atual é %s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
+					sprintf( __( 'Este plugin requer PHP versão %1$s ou superior. Sua versão atual é %2$s.', 'codesync-manager-for-github' ), $requires_php, phpversion() )
 				);
 			} elseif ( ! self::$ignore_php_check ) {
 				// Block manual update to prompt confirmation
-				return new WP_Error( 
-					'codesync_php_version_mismatch_manual', 
-					sprintf( __( 'O pacote requer PHP %s e o servidor possui %s. Deseja forçar a instalação por sua conta e risco?', 'codesync-manager-for-github' ), $requires_php, phpversion() ) 
+				return new WP_Error(
+					'codesync_php_version_mismatch_manual',
+					/* translators: 1: Required PHP, 2: Current PHP */
+					sprintf( __( 'O pacote requer PHP %1$s e o servidor possui %2$s. Deseja forçar a instalação por sua conta e risco?', 'codesync-manager-for-github' ), $requires_php, phpversion() )
 				);
 			} else {
 				// Manual update: User confirmed, just warn
@@ -794,7 +795,7 @@ class CODESYNC_Updater {
 				if ( is_dir( $path ) ) {
 					CODESYNC_Manager::delete_directory_recursive( $path );
 				} else {
-					@unlink( $path );
+					wp_delete_file( $path );
 				}
 			}
 		}
