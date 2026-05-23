@@ -127,13 +127,17 @@ class CODESYNC_Checker {
 		$session_id = md5( $repo_slug . time() . wp_rand() );
 		$inspect_dir = self::get_inspect_dir( $session_id );
 
-		// Fetch latest zipball (default branch or latest release)
-		$default_branch = $api->get_default_branch( $parts[0], $parts[1] );
-		if ( is_wp_error( $default_branch ) ) {
-			wp_send_json_error( array( 'message' => $default_branch->get_error_message() ) );
+		// Fetch zipball for selected ref or default branch
+		$ref = isset( $_POST['ref'] ) ? sanitize_text_field( wp_unslash( $_POST['ref'] ) ) : '';
+		if ( empty( $ref ) ) {
+			$ref = $api->get_default_branch( $parts[0], $parts[1] );
+			if ( is_wp_error( $ref ) ) {
+				wp_send_json_error( array( 'message' => $ref->get_error_message() ) );
+			}
 		}
 
-		$zip_url = sprintf( '%s/repos/%s/%s/zipball/%s', CODESYNC_GitHub_API::API_URL, rawurlencode( $parts[0] ), rawurlencode( $parts[1] ), rawurlencode( $default_branch ) );
+		$zip_url = sprintf( '%s/repos/%s/%s/zipball/%s', CODESYNC_GitHub_API::API_URL, rawurlencode( $parts[0] ), rawurlencode( $parts[1] ), rawurlencode( $ref ) );
+
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';

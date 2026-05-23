@@ -439,19 +439,30 @@ jQuery(document).ready(function($) {
 					$modalBody.html(bodyHtml);
 					lucide.createIcons({ nodes: [$modalBody[0]] });
 					
-					// ── INJECT CHECKER UI & RUN ────────────────────────────
+					// ── CHECKER OPT-IN BUTTON ──────────────────────────────
 					var checkerTmpl = $('#tmpl-codesync-checker-ui').html();
 					if (checkerTmpl && data.found) {
-						$modalBody.append(checkerTmpl);
-						// Hide confirm buttons until checked
-						$modalFooter.find('.codesync-btn-confirm-install, .codesync-btn-force-install, .codesync-btn-copy-md').hide();
+						$modalFooter.find('.codesync-btn-confirm-install').show().prop('disabled', false);
 						
-						// Delay slightly to let the DOM settle
-						setTimeout(function() {
-							runCheckerPipeline(repo);
-						}, 100);
+						// Add a Check Plugin button if it doesn't exist
+						if ($modalFooter.find('.codesync-btn-check-plugin').length === 0) {
+							$('<button type="button" class="button codesync-btn-check-plugin" style="margin-right:10px;"><i data-lucide="shield-check" class="codesync-icon" style="width:14px;height:14px;"></i> Check Plugin (Optional)</button>').insertBefore($modalFooter.find('.codesync-btn-confirm-install'));
+						} else {
+							$modalFooter.find('.codesync-btn-check-plugin').show();
+						}
+
+						// Bind click for the check plugin button
+						$modalFooter.off('click', '.codesync-btn-check-plugin').on('click', '.codesync-btn-check-plugin', function() {
+							$(this).hide(); // Hide the check button
+							$modalFooter.find('.codesync-btn-confirm-install').hide(); // Hide install until check finishes
+							$modalBody.append(checkerTmpl);
+							setTimeout(function() {
+								runCheckerPipeline(repo);
+							}, 100);
+						});
 					} else {
 						// If plugin not found or no template, fallback to standard enable
+						$modalFooter.find('.codesync-btn-check-plugin').hide();
 						$modalFooter.find('.codesync-btn-confirm-install').show().prop('disabled', false);
 					}
 
@@ -555,6 +566,7 @@ jQuery(document).ready(function($) {
 		installRepo = repo;
 		installIsDone = false;
 
+		$modal.find('.codesync-modal-title').text(codesync_ajax.texts.install_btn || 'Install Package');
 		$modalFooter.find('.codesync-modal-btn-cancel').show().prop('disabled', false);
 		$modalFooter.find('.codesync-btn-confirm-install, .codesync-btn-force-install, .codesync-btn-copy-md').hide();
 
@@ -799,13 +811,6 @@ jQuery(document).ready(function($) {
 		var repo  = $btn.data('repo');
 		if (!repo) return;
 
-		if (!confirm(codesync_ajax.texts.force_update_confirm.replace('%s', repo))) {
-			return;
-		}
-
-		var origLabel = $btn.html();
-		$btn.prop('disabled', true).html('<i data-lucide="loader-circle" class="codesync-icon codesync-spin"></i> ' + codesync_ajax.texts.force_updating);
-
 		function performSingleUpdate(repoSlug, ignorePhp) {
 			$.ajax({
 				url: codesync_ajax.url,
@@ -847,7 +852,27 @@ jQuery(document).ready(function($) {
 			});
 		}
 
-		performSingleUpdate(repo, false);
+		// If triggered programmatically (e.g. by Update All), bypass modal and check
+		if (!e.originalEvent) {
+			var origLabel = $btn.html();
+			$btn.prop('disabled', true).html('<i data-lucide="loader-circle" class="codesync-icon codesync-spin"></i> ' + codesync_ajax.texts.force_updating);
+			performSingleUpdate(repo, false);
+			return;
+		}
+
+		// Otherwise, it's a manual click: open the modal
+		installRepo = repo;
+		installIsDone = false;
+
+		$modal.find('.codesync-modal-title').text('Update Package');
+		$modalFooter.find('.codesync-modal-btn-cancel').show().prop('disabled', false);
+		$modalFooter.find('.codesync-btn-confirm-install, .codesync-btn-force-install, .codesync-btn-copy-md, .codesync-btn-check-plugin').hide();
+
+		$modal.show();
+		$modal[0].offsetHeight; // Trigger reflow for transition
+		$modal.addClass('codesync-modal-open');
+
+		verifyRepo(repo);
 	});
 
 	/* ---------------------------------------------------- */
@@ -937,8 +962,15 @@ jQuery(document).ready(function($) {
 		}, 250);
 	}
 
-	$('#codesync-btn-webhook-info').on('click', function(e) {
+	$pluginsCards.on('click', '.codesync-btn-webhook-info', function(e) {
 		e.preventDefault();
+		var repo = $(this).data('repo');
+		if (repo) {
+			$('#codesync-webhook-direct-link').attr('href', 'https://github.com/' + repo + '/settings/hooks');
+		} else {
+			$('#codesync-webhook-direct-link').attr('href', 'https://github.com/settings/hooks');
+		}
+
 		$webhookModal.show();
 		// small delay to allow display:block to render before adding class for opacity transition
 		setTimeout(function() {
@@ -1084,10 +1116,10 @@ jQuery(document).ready(function($) {
 					$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
 				}
 			},
-			error: function() {
-				$step.removeClass('step-active');
+			error: function(jqXHR, textStatus, errorThrown) {
+				$step.removeClass('step-active').addClass('step-error');
 				$step.find('.codesync-checker-step-icon').html('<i data-lucide="x-circle" class="codesync-icon"></i>').css('color', '#ef4444');
-				$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">Erro de conexão AJAX.</p>').slideDown();
+				$step.find('.codesync-checker-step-body').html('<p style="color:#ef4444;">AJAX Error: ' + textStatus + ' - ' + errorThrown + '</p>').slideDown();
 				if (window.lucide) { window.lucide.createIcons(); }
 				$modalFooter.find('.codesync-btn-copy-md, .codesync-btn-force-install').show();
 			}
@@ -1140,7 +1172,10 @@ jQuery(document).ready(function($) {
 	});
 
 	$modal.on('click', '.codesync-checker-step-header', function() {
-		$(this).siblings('.codesync-checker-step-body').slideToggle();
+		var $step = $(this).closest('.codesync-checker-step');
+		if ($step.hasClass('step-success') || $step.hasClass('step-warning') || $step.hasClass('step-error')) {
+			$(this).siblings('.codesync-checker-step-body').slideToggle();
+		}
 	});
 
 	$('.codesync-btn-copy-md').on('click', function(e) {

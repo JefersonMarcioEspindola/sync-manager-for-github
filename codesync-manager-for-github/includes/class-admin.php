@@ -321,16 +321,6 @@ class CODESYNC_Admin {
 											<p><?php esc_html_e( 'Update checks occur automatically twice daily via native WP-Cron.', 'codesync-manager-for-github' ); ?></p>
 										</td>
 									</tr>
-									<tr>
-										<th scope="row"><?php esc_html_e( 'Webhook Real-time', 'codesync-manager-for-github' ); ?></th>
-										<td>
-											<button type="button" class="button button-secondary" id="codesync-btn-webhook-info">
-												<i data-lucide="zap" class="codesync-icon"></i>
-												<?php esc_html_e( 'Setup Webhook', 'codesync-manager-for-github' ); ?>
-											</button>
-											<p class="description"><?php esc_html_e( 'Receive instant updates via GitHub Webhooks.', 'codesync-manager-for-github' ); ?></p>
-										</td>
-									</tr>
 								</tbody>
 							</table>
 
@@ -636,6 +626,11 @@ class CODESYNC_Admin {
 					<button type="button" class="button button-primary codesync-btn-force-update" data-repo="<?php echo esc_attr( $repo ); ?>" <?php disabled( $status !== 'atualizacao_disponivel' ); ?>>
 						<i data-lucide="cloud-upload" class="codesync-icon"></i>
 						<?php esc_html_e( 'Update', 'codesync-manager-for-github' ); ?>
+					</button>
+
+					<button type="button" class="button codesync-btn-webhook-info" data-repo="<?php echo esc_attr( $repo ); ?>">
+						<i data-lucide="zap" class="codesync-icon"></i>
+						Webhook
 					</button>
 
 					<?php if ( $has_rollback ) : ?>
