@@ -900,6 +900,12 @@
 	color: var(--codesync-primary) !important;
 }
 
+#codesync-btn-disconnect-webhook:hover {
+	border-color: #ef4444 !important;
+	color: #ef4444 !important;
+	background-color: #fff5f5 !important;
+}
+
 /* Modal Inner Elements styling */
 .codesync-modal-loading, .codesync-modal-installing {
 	display: flex;
