@@ -22,6 +22,17 @@ jQuery(document).ready(function($) {
 
 	var cachedRepos         = []; // Store repositories lists for live filtering
 
+	function toggleUpdateAllButton() {
+		var updatesCount = $pluginsCards.find('.codesync-status-update').length;
+		if (updatesCount > 1) {
+			$('#codesync-btn-update-all').show();
+		} else {
+			$('#codesync-btn-update-all').hide();
+		}
+	}
+
+	toggleUpdateAllButton();
+
 	/* ---------------------------------------------------- */
 	/* 1. Admin Tab Navigation                              */
 	/* ---------------------------------------------------- */
@@ -446,7 +457,7 @@ jQuery(document).ready(function($) {
 						
 						// Add a Check Plugin button if it doesn't exist
 						if ($modalFooter.find('.codesync-btn-check-plugin').length === 0) {
-							$('<button type="button" class="button codesync-btn-check-plugin" style="margin-right:10px;"><i data-lucide="shield-check" class="codesync-icon" style="width:14px;height:14px;"></i> Check Plugin (Optional)</button>').insertBefore($modalFooter.find('.codesync-btn-confirm-install'));
+							$('<button type="button" class="button codesync-btn-check-plugin" style="margin-right:10px;">Check Plugin (Optional)</button>').insertBefore($modalFooter.find('.codesync-btn-confirm-install'));
 						} else {
 							$modalFooter.find('.codesync-btn-check-plugin').show();
 						}
@@ -836,6 +847,7 @@ jQuery(document).ready(function($) {
 						if (response.data.table_html) {
 							$pluginsCards.html(response.data.table_html);
 							lucide.createIcons({ nodes: [$pluginsCards[0]] });
+							toggleUpdateAllButton();
 						}
 						if (response.data.logs_html) {
 							$('#codesync-logs-table-wrapper').html(response.data.logs_html);
@@ -900,6 +912,7 @@ jQuery(document).ready(function($) {
 					if (response.data.table_html) {
 						$pluginsCards.html(response.data.table_html);
 						lucide.createIcons({ nodes: [$pluginsCards[0]] });
+						toggleUpdateAllButton();
 					}
 					// Update logs tab content
 					if (response.data.logs_html) {

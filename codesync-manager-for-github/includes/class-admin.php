@@ -236,7 +236,7 @@ class CODESYNC_Admin {
 								<i data-lucide="search" class="codesync-icon"></i>
 								<?php esc_html_e( 'Check for updates now', 'codesync-manager-for-github' ); ?>
 							</button>
-							<button type="button" class="button" id="codesync-btn-update-all" style="margin-left: 10px;">
+							<button type="button" class="button" id="codesync-btn-update-all" style="margin-left: 10px; display: none;">
 								<i data-lucide="layers" class="codesync-icon"></i>
 								<?php esc_html_e( 'Update All', 'codesync-manager-for-github' ); ?>
 							</button>
