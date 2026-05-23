@@ -36,6 +36,7 @@ class CODESYNC_Admin {
 		add_action( 'wp_ajax_codesync_save_locale', array( __CLASS__, 'ajax_save_locale' ) );
 		add_action( 'wp_ajax_codesync_force_update', array( __CLASS__, 'ajax_force_update' ) );
 		add_action( 'wp_ajax_codesync_rollback', array( __CLASS__, 'ajax_rollback_plugin' ) );
+		add_action( 'wp_ajax_codesync_verify_webhook', array( __CLASS__, 'ajax_verify_webhook' ) );
 	}
 
 	/**
@@ -393,8 +394,9 @@ class CODESYNC_Admin {
 					<p><strong><?php esc_html_e( 'Content type:', 'codesync-manager-for-github' ); ?></strong> <code>application/json</code></p>
 					<p><strong><?php esc_html_e( 'Events:', 'codesync-manager-for-github' ); ?></strong> <?php esc_html_e( 'Select "Let me select individual events" and check', 'codesync-manager-for-github' ); ?> <strong>Pushes</strong> <?php esc_html_e( 'and', 'codesync-manager-for-github' ); ?> <strong>Releases</strong>.</p>
 				</div>
-				<div class="codesync-modal-footer">
-					<button type="button" class="button button-primary codesync-modal-btn-cancel"><?php esc_html_e( 'Understood', 'codesync-manager-for-github' ); ?></button>
+				<div class="codesync-modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+					<button type="button" class="button codesync-modal-btn-cancel"><?php esc_html_e( 'Close', 'codesync-manager-for-github' ); ?></button>
+					<button type="button" class="button button-primary" id="codesync-btn-verify-webhook" disabled><?php esc_html_e( 'Verify Webhook', 'codesync-manager-for-github' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -1650,6 +1652,29 @@ class CODESYNC_Admin {
 				__( 'Falha ao realizar o rollback. O backup não pôde ser copiado.', 'codesync-manager-for-github' )
 			);
 			wp_send_json_error( array( 'message' => __( 'Erro ao restaurar os arquivos. Verifique as permissões do diretório.', 'codesync-manager-for-github' ) ) );
+		}
+	}
+
+	/**
+	 * AJAX endpoint: Verify webhook ping.
+	 */
+	public static function ajax_verify_webhook() {
+		check_ajax_referer( 'codesync_admin_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Sem permissões adequadas.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
+		if ( empty( $repo_slug ) ) {
+			wp_send_json_error( array( 'message' => __( 'Repositório não especificado.', 'codesync-manager-for-github' ) ) );
+		}
+
+		$ping_time = get_option( 'codesync_webhook_ping_' . $repo_slug );
+		if ( ! empty( $ping_time ) ) {
+			// Webhook received successfully
+			wp_send_json_success( array( 'message' => __( 'Webhook verificado com sucesso! Ping recebido.', 'codesync-manager-for-github' ) ) );
+		} else {
+			wp_send_json_error( array( 'message' => __( 'Ainda não recebemos o evento de Ping do GitHub. Verifique a configuração e tente novamente.', 'codesync-manager-for-github' ) ) );
 		}
 	}
 }

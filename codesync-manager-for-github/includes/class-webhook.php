@@ -60,6 +60,11 @@ class CODESYNC_Webhook {
 		$event = $request->get_header( 'X-GitHub-Event' );
 
 		if ( 'ping' === $event ) {
+			$repo_slug = '';
+			if ( ! empty( $data['repository']['full_name'] ) ) {
+				$repo_slug = $data['repository']['full_name'];
+				update_option( 'codesync_webhook_ping_' . $repo_slug, time() );
+			}
 			return new WP_REST_Response( array( 'message' => 'Pong! Conexão estabelecida com sucesso.' ), 200 );
 		}
 

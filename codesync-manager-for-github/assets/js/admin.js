@@ -971,17 +971,21 @@ jQuery(document).ready(function($) {
 	/* 11. Webhook Modal & Utilities                        */
 	/* ---------------------------------------------------- */
 	var $webhookModal = $('#codesync-webhook-modal');
+	var currentWebhookRepo = '';
 
 	function hideWebhookModal() {
 		$webhookModal.removeClass('codesync-modal-open');
 		setTimeout(function() {
 			$webhookModal.hide();
+			$('#codesync-btn-verify-webhook').prop('disabled', true).text('Verify Webhook');
 		}, 250);
 	}
 
 	$pluginsCards.on('click', '.codesync-btn-webhook-info', function(e) {
 		e.preventDefault();
 		var repo = $(this).data('repo');
+		currentWebhookRepo = repo || '';
+		
 		if (repo) {
 			$('#codesync-webhook-direct-link').attr('href', 'https://github.com/' + repo + '/settings/hooks');
 		} else {
@@ -1018,16 +1022,72 @@ jQuery(document).ready(function($) {
 			}
 			
 			// Visual feedback
-			var $icon = $(this).find('.codesync-icon');
-			var originalIcon = $icon.attr('data-lucide');
-			$icon.attr('data-lucide', 'check').css('color', '#00a32a');
-			lucide.createIcons();
-			
+			var $icon = $(this).find('i');
+			var oldIcon = $icon.attr('data-lucide');
+			$icon.attr('data-lucide', 'check').css('color', '#10b981');
+			lucide.createIcons({ nodes: [this] });
+
+			// Enable verify button when secret is copied
+			if (targetId === '#codesync-webhook-secret') {
+				$('#codesync-btn-verify-webhook').prop('disabled', false);
+			}
+
 			setTimeout(function() {
-				$icon.attr('data-lucide', originalIcon).css('color', '');
-				lucide.createIcons();
-			}, 2000);
+				$icon.attr('data-lucide', oldIcon).css('color', '');
+				lucide.createIcons({ nodes: [this] });
+			}.bind(this), 2000);
 		}
+	});
+
+	// Verify Webhook Button
+	$('#codesync-btn-verify-webhook').on('click', function() {
+		if (!currentWebhookRepo) return;
+		var $btn = $(this);
+		
+		$btn.prop('disabled', true).html('<i data-lucide="loader-2" class="codesync-icon codesync-spin"></i> Checking...');
+		lucide.createIcons({ nodes: [$btn[0]] });
+
+		$.ajax({
+			url: codesync_ajax.url,
+			type: 'POST',
+			data: {
+				action: 'codesync_verify_webhook',
+				repo: currentWebhookRepo,
+				nonce: codesync_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					$btn.html('<i data-lucide="check" class="codesync-icon"></i> ' + response.data.message).css({
+						'background-color': '#10b981',
+						'border-color': '#10b981',
+						'color': '#fff'
+					});
+					lucide.createIcons({ nodes: [$btn[0]] });
+				} else {
+					$btn.prop('disabled', false).html('<i data-lucide="alert-circle" class="codesync-icon"></i> ' + response.data.message).css({
+						'background-color': '#f59e0b',
+						'border-color': '#f59e0b',
+						'color': '#fff'
+					});
+					lucide.createIcons({ nodes: [$btn[0]] });
+					
+					// Reset button style after a few seconds so they can try again
+					setTimeout(function() {
+						$btn.html('Verify Webhook').css({
+							'background-color': '',
+							'border-color': '',
+							'color': ''
+						});
+					}, 4000);
+				}
+			},
+			error: function() {
+				$btn.prop('disabled', false).html('Communication error. Try again.');
+				setTimeout(function() {
+					$btn.html('Verify Webhook');
+				}, 3000);
+			}
+		});
 	});
 
 	$('.codesync-btn-toggle-visibility').on('click', function() {
