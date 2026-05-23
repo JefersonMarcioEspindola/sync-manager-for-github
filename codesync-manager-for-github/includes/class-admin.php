@@ -811,11 +811,16 @@ class CODESYNC_Admin {
 
 		if ( 'list' === $action_type ) {
 			$api   = new CODESYNC_GitHub_API( $decrypted );
-			$repos = $api->get_repositories();
+			$force_refresh = isset( $_POST['force_refresh'] ) && '1' === $_POST['force_refresh'];
+			
+			$repos_data = $api->get_repositories( $force_refresh );
 
-			if ( is_wp_error( $repos ) ) {
-				wp_send_json_error( array( 'message' => $repos->get_error_message() ) );
+			if ( is_wp_error( $repos_data ) ) {
+				wp_send_json_error( array( 'message' => $repos_data->get_error_message() ) );
 			}
+
+			$repos        = isset( $repos_data['repos'] ) ? $repos_data['repos'] : array();
+			$last_updated = isset( $repos_data['last_updated'] ) ? $repos_data['last_updated'] : '';
 
 			$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
 			if ( ! is_array( $managed_plugins ) ) {
@@ -827,7 +832,7 @@ class CODESYNC_Admin {
 				$r['is_managed'] = isset( $managed_plugins[ $r['full_name'] ] );
 			}
 
-			wp_send_json_success( array( 'repos' => $repos ) );
+			wp_send_json_success( array( 'repos' => $repos, 'last_updated' => $last_updated ) );
 		} elseif ( 'install' === $action_type ) {
 			$repo_slug = isset( $_POST['repo'] ) ? sanitize_text_field( wp_unslash( $_POST['repo'] ) ) : '';
 			if ( empty( $repo_slug ) ) {

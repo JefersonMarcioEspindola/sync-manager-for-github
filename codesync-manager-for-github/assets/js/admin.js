@@ -134,7 +134,7 @@ jQuery(document).ready(function($) {
 	/* ---------------------------------------------------- */
 	/* 4. Load GitHub Repositories                          */
 	/* ---------------------------------------------------- */
-	function loadGitHubRepositories() {
+	function loadGitHubRepositories(forceRefresh) {
 		$reposSpinner.addClass('is-active');
 		$reposContainer.html('<p class="description">' + codesync_ajax.texts.loading_repos + '</p>');
 		$searchField.val('').prop('disabled', true);
@@ -145,6 +145,7 @@ jQuery(document).ready(function($) {
 			data: {
 				action: 'codesync_add_plugin',
 				action_type: 'list',
+				force_refresh: forceRefresh ? 1 : 0,
 				nonce: codesync_ajax.nonce
 			},
 			success: function(response) {
@@ -154,6 +155,7 @@ jQuery(document).ready(function($) {
 				if (response.success) {
 					cachedRepos = response.data.repos;
 					renderRepositories(cachedRepos);
+					// If last updated is provided, we could show it, but for now we just cache
 				} else {
 					$reposContainer.html('<p class="codesync-error-message">' + response.data.message + '</p>');
 				}
@@ -168,7 +170,7 @@ jQuery(document).ready(function($) {
 
 	$reloadReposBtn.on('click', function(e) {
 		e.preventDefault();
-		loadGitHubRepositories();
+		loadGitHubRepositories(true);
 	});
 
 	// Render the list/grid of repositories

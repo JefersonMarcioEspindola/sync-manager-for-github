@@ -122,7 +122,16 @@ class CODESYNC_GitHub_API {
 	 *
 	 * @return array|WP_Error List of repositories or WP_Error on failure.
 	 */
-	public function get_repositories() {
+	public function get_repositories( $force_refresh = false ) {
+		$transient_key = 'codesync_repos_' . md5( $this->token );
+
+		if ( ! $force_refresh ) {
+			$cached = get_transient( $transient_key );
+			if ( false !== $cached && is_array( $cached ) ) {
+				return $cached;
+			}
+		}
+
 		$url  = self::API_URL . '/user/repos?per_page=100&sort=updated';
 		$args = $this->get_request_args();
 
@@ -211,7 +220,13 @@ class CODESYNC_GitHub_API {
 			}
 		}
 
-		return $repos;
+		$result = array(
+			'repos'        => $repos,
+			'last_updated' => current_time( 'mysql' ),
+		);
+		set_transient( $transient_key, $result, HOUR_IN_SECONDS );
+
+		return $result;
 	}
 
 	/**
