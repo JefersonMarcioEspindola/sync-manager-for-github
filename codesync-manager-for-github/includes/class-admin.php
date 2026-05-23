@@ -371,9 +371,6 @@ class CODESYNC_Admin {
 					<button type="button" class="codesync-modal-close" aria-label="<?php esc_attr_e( 'Close', 'codesync-manager-for-github' ); ?>">&times;</button>
 				</div>
 				<div class="codesync-modal-body">
-					<div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #92400e;">
-						<strong><?php esc_html_e( 'Note:', 'codesync-manager-for-github' ); ?></strong> <?php esc_html_e( 'You can only configure webhooks if you are the repository owner or have admin access.', 'codesync-manager-for-github' ); ?>
-					</div>
 
 					<p><?php esc_html_e( 'Follow these steps to configure a Webhook and receive updates instantly:', 'codesync-manager-for-github' ); ?></p>
 					
@@ -1702,7 +1699,7 @@ class CODESYNC_Admin {
 			// Webhook received successfully
 			wp_send_json_success( array( 'message' => __( 'Webhook verificado com sucesso! Ping recebido.', 'codesync-manager-for-github' ) ) );
 		} else {
-			wp_send_json_error( array( 'message' => __( 'Ainda não recebemos o evento de Ping do GitHub. Verifique a configuração e tente novamente.', 'codesync-manager-for-github' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Ping não recebido. Tente novamente.', 'codesync-manager-for-github' ) ) );
 		}
 	}
 }
