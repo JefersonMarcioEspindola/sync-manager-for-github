@@ -3,7 +3,7 @@
  * Plugin Name: CodeSync Manager for GitHub
  * Plugin URI: https://github.com/JefersonMarcioEspindola/codesync-manager-for-github
  * Description: A developer tool to manage, install, and auto-update custom WordPress plugins hosted on GitHub. Connect via a Personal Access Token and use GitHub releases as the source of truth for versioning — no manual ZIP uploads needed.
- * Version: 2.0.011
+ * Version: 2.0.016
  * Author: Jeferson Espindola
  * Author URI: https://github.com/JefersonMarcioEspindola
  * Text Domain: codesync-manager-for-github
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Constant Definitions
  */
-define( 'CODESYNC_VERSION', '2.0.011' );
+define( 'CODESYNC_VERSION', '2.0.016' );
 define( 'CODESYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CODESYNC_FILE', __FILE__ );
 
@@ -61,6 +61,10 @@ function codesync_init() {
 
 	// Hook into scheduled cron event
 	add_action( 'codesync_cron_check_updates', 'codesync_cron_check_updates_callback' );
+
+	// Clean up database options when a managed plugin or theme is deleted from WordPress
+	add_action( 'deleted_plugin', 'codesync_handle_deleted_plugin', 10, 2 );
+	add_action( 'deleted_theme', 'codesync_handle_deleted_theme', 10, 2 );
 }
 add_action( 'plugins_loaded', 'codesync_init' );
 
@@ -206,4 +210,80 @@ function codesync_cron_check_updates_callback() {
 	delete_site_transient( 'update_plugins' );
 
 	CODESYNC_Manager::log( 'sistema', 'cron_check', 'sucesso', __( 'Cron automático executou a verificação periódica de atualizações e limpeza.', 'codesync-manager-for-github' ) );
+}
+
+/**
+ * Automatically clean up managed plugin from DB when deleted.
+ */
+function codesync_handle_deleted_plugin( $plugin_file, $deleted ) {
+	if ( ! $deleted ) {
+		return;
+	}
+
+	$managed_plugins = get_option( 'codesync_managed_plugins', array() );
+	if ( ! is_array( $managed_plugins ) || empty( $managed_plugins ) ) {
+		return;
+	}
+
+	$updated = false;
+	foreach ( $managed_plugins as $repo_slug => $data ) {
+		if ( isset( $data['plugin_file'] ) && $data['plugin_file'] === $plugin_file ) {
+			unset( $managed_plugins[ $repo_slug ] );
+			$updated = true;
+
+			// Also delete transient releases cache
+			$parts = explode( '/', $repo_slug );
+			if ( count( $parts ) === 2 ) {
+				CODESYNC_GitHub_API::delete_releases_cache( $parts[0], $parts[1] );
+			}
+
+			// Clean up webhook settings if any
+			delete_option( 'codesync_webhook_ping_' . $repo_slug );
+
+			// Log the event
+			CODESYNC_Manager::log( $repo_slug, 'remover_automatico', 'sucesso', sprintf( __( 'Plugin %s deletado do WordPress. Gerenciamento removido.', 'codesync-manager-for-github' ), $plugin_file ) );
+		}
+	}
+
+	if ( $updated ) {
+		CODESYNC_Manager::update_option_no_autoload( 'codesync_managed_plugins', $managed_plugins );
+	}
+}
+
+/**
+ * Automatically clean up managed theme from DB when deleted.
+ */
+function codesync_handle_deleted_theme( $stylesheet, $deleted ) {
+	if ( ! $deleted ) {
+		return;
+	}
+
+	$managed_themes = get_option( 'codesync_managed_themes', array() );
+	if ( ! is_array( $managed_themes ) || empty( $managed_themes ) ) {
+		return;
+	}
+
+	$updated = false;
+	foreach ( $managed_themes as $repo_slug => $data ) {
+		if ( isset( $data['theme_folder'] ) && $data['theme_folder'] === $stylesheet ) {
+			unset( $managed_themes[ $repo_slug ] );
+			$updated = true;
+
+			// Also delete transient releases cache
+			$parts = explode( '/', $repo_slug );
+			if ( count( $parts ) === 2 ) {
+				CODESYNC_GitHub_API::delete_releases_cache( $parts[0], $parts[1] );
+			}
+
+			// Clean up webhook settings if any
+			delete_option( 'codesync_webhook_ping_' . $repo_slug );
+
+			// Log the event
+			CODESYNC_Manager::log( $repo_slug, 'remover_automatico', 'sucesso', sprintf( __( 'Tema %s deletado do WordPress. Gerenciamento removido.', 'codesync-manager-for-github' ), $stylesheet ) );
+		}
+	}
+
+	if ( $updated ) {
+		CODESYNC_Manager::update_option_no_autoload( 'codesync_managed_themes', $managed_themes );
+	}
 }

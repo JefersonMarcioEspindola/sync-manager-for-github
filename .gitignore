@@ -1,2 +1,14 @@
 # macOS
 .DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Dependências Node/Composer
+node_modules/
+vendor/
+
+# Configurações locais de IA e builds locais
+.claude/
+releases/

@@ -276,4 +276,64 @@ class CODESYNC_Manager {
 		}
 		$wp_filesystem->rmdir( $dir );
 	}
+
+	/**
+	 * Map raw WordPress / CodeSync error codes to developer-friendly descriptions.
+	 *
+	 * @param WP_Error $error The WP_Error object.
+	 * @return string Detailed developer-friendly error message.
+	 */
+	public static function get_developer_error_message( $error ) {
+		if ( ! is_wp_error( $error ) ) {
+			return is_string( $error ) ? $error : '';
+		}
+
+		$code    = $error->get_error_code();
+		$message = $error->get_error_message();
+
+		switch ( $code ) {
+			case 'download_failed':
+				return sprintf(
+					__( 'Erro de Download: O WordPress não conseguiu baixar o arquivo ZIP da API do GitHub. Verifique se o seu servidor possui acesso à internet ou se o token tem permissões adequadas. (Erro: %s)', 'codesync-manager-for-github' ),
+					$message
+				);
+			case 'incompatible_archive':
+				return __( 'Arquivo Incompatível: O arquivo baixado não é um ZIP válido ou está corrompido.', 'codesync-manager-for-github' );
+			case 'fs_unavailable':
+				return __( 'Sistema de Arquivos Indisponível: O WordPress não conseguiu carregar as credenciais de escrita direta ou o método de acesso ao sistema de arquivos falhou.', 'codesync-manager-for-github' );
+			case 'fs_mkdir_failed':
+				return __( 'Falha de Diretório: Não foi possível criar a pasta final do plugin/tema. Verifique se a pasta principal (wp-content/plugins ou themes) tem permissões de escrita corretas.', 'codesync-manager-for-github' );
+			case 'fs_copy_failed':
+			case 'copy_failed':
+				return __( 'Falha ao Copiar Arquivos: Falha ao mover os arquivos extraídos para a pasta definitiva de plugins/temas do WordPress. Verifique se há arquivos bloqueados.', 'codesync-manager-for-github' );
+			case 'folder_exists':
+				return __( 'Diretório Já Existe: A pasta de destino já existe e o instalador falhou ao tentar substituí-la.', 'codesync-manager-for-github' );
+			case 'codesync_blocked_self_management':
+				return __( 'Auto-gerenciamento Bloqueado: Não é permitido gerenciar este próprio plugin através do CodeSync para evitar loops de atualização e bloqueio de execução.', 'codesync-manager-for-github' );
+			case 'codesync_zip_open_failed':
+				return __( 'Erro de Descompactação: O ZIP temporário baixado não pôde ser aberto (classe ZipArchive falhou ou arquivo incompleto).', 'codesync-manager-for-github' );
+			case 'codesync_invalid_package_zip':
+				return __( 'Pacote Inválido: O ZIP do GitHub não possui a estrutura correta de um plugin ou tema WordPress (cabeçalho "Plugin Name" ou "Theme Name" ausente).', 'codesync-manager-for-github' );
+			case 'codesync_slug_resolution_failed':
+				return __( 'Resolução de Slug Falhou: Não foi possível identificar o arquivo PHP principal do plugin ou o style.css do tema nos arquivos extraídos.', 'codesync-manager-for-github' );
+			case 'codesync_subfolder_not_found':
+				return sprintf(
+					__( 'Subpasta não encontrada: A subpasta configurada não existe no repositório. (Caminho: %s)', 'codesync-manager-for-github' ),
+					$message
+				);
+			case 'codesync_php_version_mismatch':
+			case 'codesync_php_version_mismatch_manual':
+				return sprintf(
+					__( 'Incompatibilidade de PHP: O pacote requer uma versão de PHP superior à executada pelo servidor. (Requisito: %s)', 'codesync-manager-for-github' ),
+					$message
+				);
+			case 'codesync_backup_failed':
+				return __( 'Erro de Cópia/Backup: Falha ao criar a pasta de backup de segurança em wp-content/uploads/codesync-backups. A atualização foi cancelada para proteger o plugin antigo.', 'codesync-manager-for-github' );
+			case 'codesync_rename_failed':
+			case 'codesync_rename_nested_failed':
+				return __( 'Falha ao Renomear: Não foi possível renomear ou mover a pasta temporária extraída para a pasta definitiva com o slug correto.', 'codesync-manager-for-github' );
+			default:
+				return $message;
+		}
+	}
 }

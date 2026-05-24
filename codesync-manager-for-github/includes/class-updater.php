@@ -656,6 +656,9 @@ class CODESYNC_Updater {
 			);
 		}
 
+		// Delete the old destination folder completely to ensure a clean, forced overwrite
+		CODESYNC_Manager::delete_directory_recursive( $target_dir_path );
+
 		// Save backup details
 		self::$backup_info = array(
 			'repo'          => $repo_slug,
@@ -959,10 +962,24 @@ class CODESYNC_Updater {
 		self::$currently_installing_type      = '';
 
 		if ( is_wp_error( $result ) ) {
+			$skin_messages = ! empty( $skin->messages ) ? $skin->messages : ( method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array() );
+			if ( ! empty( $skin_messages ) ) {
+				$detail = implode( ' ', array_slice( $skin_messages, -3 ) );
+				return new WP_Error(
+					$result->get_error_code(),
+					$result->get_error_message() . ' ' . sprintf( __( 'Detalhes do Upgrader: %s', 'codesync-manager-for-github' ), $detail ),
+					$result->get_error_data()
+				);
+			}
 			return $result;
 		}
 		if ( ! $result ) {
-			return new WP_Error( 'codesync_install_failed', __( 'A reinstalação falhou. Verifique as permissões do servidor.', 'codesync-manager-for-github' ) );
+			$skin_messages = ! empty( $skin->messages ) ? $skin->messages : ( method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array() );
+			$detail        = ! empty( $skin_messages ) ? implode( ' ', array_slice( $skin_messages, -3 ) ) : '';
+			return new WP_Error(
+				'codesync_install_failed',
+				__( 'A reinstalação falhou.', 'codesync-manager-for-github' ) . ( ! empty( $detail ) ? ' ' . sprintf( __( 'Detalhes: %s', 'codesync-manager-for-github' ), $detail ) : ' ' . __( 'Verifique as permissões do servidor.', 'codesync-manager-for-github' ) )
+			);
 		}
 
 		$latest_version = ltrim( $target_release['tag_name'], 'vV' );

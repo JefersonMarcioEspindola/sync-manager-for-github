@@ -3,7 +3,7 @@ Contributors: JefersonMarcioEspindola, jefersonespindola
 Tags: github, plugin updater, private plugins, github releases, self-hosted
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 2.0.011
+Stable tag: 2.0.016
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -84,6 +84,23 @@ This service is provided by GitHub, Inc.
 3. Activity log showing install and update history.
 
 == Changelog ==
+
+= 2.0.016 =
+* Enhancement: Added a comprehensive error mapping helper that translates raw WordPress filesystem, download, copy, and ZIP errors into highly detailed, developer-friendly troubleshooting messages.
+
+= 2.0.015 =
+* Fix: Removed the `is_already_managed` check during package installation from the AJAX backend. This fixes the bug where clicking "Update" on a managed card or re-triggering install was blocked with the "already managed" error.
+
+= 2.0.014 =
+* Enhancement: Implemented a robust forced overwrite strategy by deleting the old plugin/theme directory directly in `upgrader_pre_install` right after backing it up, resolving permission lockouts and overlapping installation errors.
+
+= 2.0.013 =
+* Enhancement: Captured and appended detailed WordPress Upgrader messages / feedback logs to installation and update errors for better developer debugging.
+
+= 2.0.012 =
+* Fix: Prevented "already being managed" installation error if files were deleted or moved outside WordPress.
+* Fix: Added action hooks `deleted_plugin` and `deleted_theme` to automatically remove packages from the database options when they are uninstalled from WordPress.
+* Fix: Resolved managed listing logic to check both themes and plugins for management flags.
 
 = 1.1.4 =
 * Hotfix: Added missing English and Spanish translations for the new synchronization modal texts.

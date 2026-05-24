@@ -132,10 +132,27 @@ class CODESYNC_Admin_AJAX {
 			if ( ! is_array( $managed_plugins ) ) {
 				$managed_plugins = array();
 			}
+			$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+			if ( ! is_array( $managed_themes ) ) {
+				$managed_themes = array();
+			}
 
 			// Add is_managed flag
 			foreach ( $repos as &$r ) {
-				$r['is_managed'] = isset( $managed_plugins[ $r['full_name'] ] );
+				$is_managed = false;
+				$repo_slug = $r['full_name'];
+				if ( isset( $managed_plugins[ $repo_slug ] ) ) {
+					$plugin_file = isset( $managed_plugins[ $repo_slug ]['plugin_file'] ) ? $managed_plugins[ $repo_slug ]['plugin_file'] : '';
+					if ( ! empty( $plugin_file ) && file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
+						$is_managed = true;
+					}
+				} elseif ( isset( $managed_themes[ $repo_slug ] ) ) {
+					$theme_folder = isset( $managed_themes[ $repo_slug ]['theme_folder'] ) ? $managed_themes[ $repo_slug ]['theme_folder'] : '';
+					if ( ! empty( $theme_folder ) && file_exists( get_theme_root() . '/' . $theme_folder ) ) {
+						$is_managed = true;
+					}
+				}
+				$r['is_managed'] = $is_managed;
 			}
 
 			wp_send_json_success( array( 'repos' => $repos, 'last_updated' => $last_updated ) );
@@ -152,15 +169,6 @@ class CODESYNC_Admin_AJAX {
 			$valid_repo = CODESYNC_Manager::validate_repository_before_add( $repo_slug );
 			if ( is_wp_error( $valid_repo ) ) {
 				wp_send_json_error( array( 'message' => $valid_repo->get_error_message() ) );
-			}
-
-			$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
-			if ( ! is_array( $managed_plugins ) ) {
-				$managed_plugins = array();
-			}
-
-			if ( isset( $managed_plugins[ $repo_slug ] ) ) {
-				wp_send_json_error( array( 'message' => __( 'Este repositório já está sendo gerenciado.', 'codesync-manager-for-github' ) ) );
 			}
 
 			// Explode owner and repo
@@ -296,11 +304,16 @@ class CODESYNC_Admin_AJAX {
 			CODESYNC_Updater::$currently_installing_canonical_slug = '';
 
 			if ( is_wp_error( $result ) ) {
-				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+				$skin_messages = ! empty( $skin->messages ) ? $skin->messages : ( method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array() );
+				$error_message = CODESYNC_Manager::get_developer_error_message( $result );
+				if ( ! empty( $skin_messages ) ) {
+					$error_message .= ' ' . sprintf( __( 'Detalhes do Upgrader: %s', 'codesync-manager-for-github' ), implode( ' ', array_slice( $skin_messages, -3 ) ) );
+				}
+				wp_send_json_error( array( 'message' => $error_message ) );
 			}
 
 			if ( ! $result ) {
-				$skin_messages = method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array();
+				$skin_messages = ! empty( $skin->messages ) ? $skin->messages : ( method_exists( $skin, 'get_upgrade_messages' ) ? $skin->get_upgrade_messages() : array() );
 				$detail        = ! empty( $skin_messages ) ? implode( ' ', array_slice( $skin_messages, -3 ) ) : '';
 				wp_send_json_error( array(
 					'message' => __( 'A instalação do pacote falhou. Detalhes: ', 'codesync-manager-for-github' ) . $detail,
@@ -329,6 +342,14 @@ class CODESYNC_Admin_AJAX {
 					'branch_name'    => $branch_name,
 				);
 				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_THEMES, $managed_themes );
+
+				// Clean up from plugins list just in case
+				$managed_plugins = get_option( CODESYNC_Manager::OPTION_PLUGINS, array() );
+				if ( isset( $managed_plugins[ $repo_slug ] ) ) {
+					unset( $managed_plugins[ $repo_slug ] );
+					CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed_plugins );
+				}
+
 				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Tema gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
 
 				$was_already_installed = isset( $themes_before[ $installed_theme_folder ] );
@@ -386,6 +407,14 @@ class CODESYNC_Admin_AJAX {
 					'subfolder'      => $selected_subfolder,
 				);
 				CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_PLUGINS, $managed_plugins );
+
+				// Clean up from themes list just in case
+				$managed_themes = get_option( CODESYNC_Manager::OPTION_THEMES, array() );
+				if ( isset( $managed_themes[ $repo_slug ] ) ) {
+					unset( $managed_themes[ $repo_slug ] );
+					CODESYNC_Manager::update_option_no_autoload( CODESYNC_Manager::OPTION_THEMES, $managed_themes );
+				}
+
 				CODESYNC_Manager::log( $repo_slug, 'adicionar', 'sucesso', __( 'Plugin gerenciado adicionado com sucesso.', 'codesync-manager-for-github' ) );
 
 				$was_already_installed = isset( $plugins_before[ $installed_plugin_file ] );
@@ -623,7 +652,7 @@ class CODESYNC_Admin_AJAX {
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array(
-				'message' => $result->get_error_message(),
+				'message' => CODESYNC_Manager::get_developer_error_message( $result ),
 				'code'    => $result->get_error_code(),
 			) );
 		}

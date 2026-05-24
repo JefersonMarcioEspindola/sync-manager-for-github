@@ -1,6 +1,6 @@
 # CodeSync Manager for GitHub
 
-[English](#english) | [Português](#português)
+[🇺🇸 Read in English](#english) | [🇧🇷 Leia em Português](#portugues)
 
 ---
 
@@ -62,15 +62,20 @@ The main use case is fast delivery of bespoke or actively-developed packages: wh
 │   ├── codesync-manager-for-github.php   # Main entrypoint
 │   └── readme.txt                    # WordPress.org plugin readme
 │
-└── releases/                         # Packaged ZIP archives
-    └── codesync-manager-for-github-v2.0.0.zip
+├── docs/                             # AI context and documentation
+│   ├── TRANSLATION_RULES.md          # Translation guidelines
+│   └── claude.md                     # AI user preferences (custom context)
+│
+├── LICENSE                           # Official GPLv2 license
+├── README.md                         # Bilingual documentation
+└── .gitignore                        # Git ignore patterns
 ```
 
 ---
 
 ### 💾 Installation & Setup
 
-1. Download the latest ZIP from `releases/` (`v2.0.0`).
+1. Download the latest ZIP from the **Releases** tab on GitHub.
 2. In WordPress admin: **Plugins → Add New → Upload Plugin**, select the ZIP, install and activate.
 3. Open the new **Sync Manager** menu item.
 4. Paste a GitHub Personal Access Token (PAT) with `repo` scope to connect.
@@ -78,6 +83,7 @@ The main use case is fast delivery of bespoke or actively-developed packages: wh
 
 ---
 
+<a name="portugues"></a>
 ## Português
 
 O **CodeSync Manager for GitHub** é um plugin WordPress open-source que transforma qualquer repositório GitHub (público ou privado) em uma fonte gerenciada de **plugins e temas** para WordPress, usando **Releases** ou **Branches** como fonte de verdade.
@@ -136,15 +142,20 @@ O caso de uso central é a distribuição ágil de pacotes sob medida ou em dese
 │   ├── codesync-manager-for-github.php   # Arquivo principal
 │   └── readme.txt                    # Readme para o WordPress.org
 │
-└── releases/                         # Pacotes ZIP de distribuição
-    └── codesync-manager-for-github-v2.0.0.zip
+├── docs/                             # Contexto de IA e documentação
+│   ├── TRANSLATION_RULES.md          # Diretrizes de tradução
+│   └── claude.md                     # Preferências do usuário (contexto de IA)
+│
+├── LICENSE                           # Licença oficial GPLv2
+├── README.md                         # Documentação bilíngue
+└── .gitignore                        # Regras de ignore do Git
 ```
 
 ---
 
 ### 💾 Instalação e Configuração
 
-1. Baixe o ZIP mais recente em `releases/` (`v2.0.0`).
+1. Baixe o ZIP mais recente na aba **Releases** no GitHub.
 2. No painel do WordPress: **Plugins → Adicionar Novo → Enviar Plugin**, selecione o ZIP, instale e ative.
 3. Acesse o novo menu **Sync Manager**.
 4. Cole um Personal Access Token (PAT) do GitHub com escopo `repo` para conectar.
