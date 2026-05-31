@@ -3,7 +3,7 @@ Contributors: JefersonMarcioEspindola, jefersonespindola
 Tags: github, plugin updater, private plugins, github releases, self-hosted
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 2.0.017
+Stable tag: 2.0.019
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -84,6 +84,14 @@ This service is provided by GitHub, Inc.
 3. Activity log showing install and update history.
 
 == Changelog ==
+
+= 2.0.019 =
+* Hotfix: Restored the theme/plugin validation conditional statement that was broken during core cleanup.
+
+= 2.0.018 =
+* Pivot: Structured CodeSync Manager for self-hosted distribution via GitHub releases rather than the WordPress.org Plugin Directory.
+* Security: Moved temporary code extraction and inspection folders to use `get_temp_dir()` rather than `uploads/codesync-inspect`, protecting against execution in Nginx environments.
+* Code Quality: Removed redundant direct includes of `plugin.php` and `theme.php` and cleaned up class-wp-upgrader inclusions.
 
 = 2.0.017 =
 * Fix: Loaded the required `wp-admin/includes/plugin.php` file dynamically in background REST API (webhook) and Cron contexts to prevent fatal errors when calling `get_file_data()`.

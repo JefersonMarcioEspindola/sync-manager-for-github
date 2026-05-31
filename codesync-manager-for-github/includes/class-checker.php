@@ -140,7 +140,6 @@ class CODESYNC_Checker {
 
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		WP_Filesystem();
 		global $wp_filesystem;
 

@@ -546,9 +546,6 @@ class CODESYNC_Admin_UI {
 					$php_files = glob( $subfolder_path . '/*.php' );
 					if ( $php_files ) {
 						foreach ( $php_files as $php_file ) {
-							if ( ! function_exists( 'get_file_data' ) ) {
-								require_once ABSPATH . 'wp-admin/includes/plugin.php';
-							}
 							$fd = get_file_data( $php_file, array( 'Name' => 'Plugin Name', 'Version' => 'Version' ) );
 							if ( ! empty( $fd['Name'] ) ) {
 								$plugin_name       = $fd['Name'];
@@ -568,9 +565,6 @@ class CODESYNC_Admin_UI {
 
 			// Fallback: use stored plugin_file if subfolder scan did not resolve it
 			if ( '0.0.0' === $installed_version && ! empty( $plugin_file ) && file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
-				if ( ! function_exists( 'get_file_data' ) ) {
-					require_once ABSPATH . 'wp-admin/includes/plugin.php';
-				}
 				$file_data         = get_file_data( WP_PLUGIN_DIR . '/' . $plugin_file, array(
 					'Name'    => 'Plugin Name',
 					'Version' => 'Version',

@@ -3,7 +3,7 @@
  * Plugin Name: CodeSync Manager for GitHub
  * Plugin URI: https://github.com/JefersonMarcioEspindola/codesync-manager-for-github
  * Description: A developer tool to manage, install, and auto-update custom WordPress plugins hosted on GitHub. Connect via a Personal Access Token and use GitHub releases as the source of truth for versioning — no manual ZIP uploads needed.
- * Version: 2.0.017
+ * Version: 2.0.019
  * Author: Jeferson Espindola
  * Author URI: https://github.com/JefersonMarcioEspindola
  * Text Domain: codesync-manager-for-github
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Constant Definitions
  */
-define( 'CODESYNC_VERSION', '2.0.017' );
+define( 'CODESYNC_VERSION', '2.0.019' );
 define( 'CODESYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CODESYNC_FILE', __FILE__ );
 
@@ -166,9 +166,6 @@ function codesync_cron_check_updates_callback() {
 		}
 
 		// Read installed version
-		if ( ! function_exists( 'get_file_data' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
 		$file_data = get_file_data( $plugin_path, array( 'Version' => 'Version' ) );
 		$installed_version = ! empty( $file_data['Version'] ) ? $file_data['Version'] : '0.0.0';
 

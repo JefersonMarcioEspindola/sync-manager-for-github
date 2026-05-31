@@ -92,12 +92,15 @@ class CODESYNC_Manager {
 	 * @return string|WP_Error Absolute path of the secure directory, or WP_Error on failure.
 	 */
 	public static function get_secure_directory( $subfolder ) {
-		$uploads = wp_upload_dir();
-		if ( ! empty( $uploads['error'] ) ) {
-			return new WP_Error( 'codesync_uploads_error', $uploads['error'] );
+		if ( 'codesync-backups' === $subfolder ) {
+			$uploads = wp_upload_dir();
+			if ( ! empty( $uploads['error'] ) ) {
+				return new WP_Error( 'codesync_uploads_error', $uploads['error'] );
+			}
+			$dir_path = $uploads['basedir'] . '/' . sanitize_file_name( $subfolder );
+		} else {
+			$dir_path = rtrim( get_temp_dir(), '/' ) . '/' . sanitize_file_name( $subfolder );
 		}
-
-		$dir_path = $uploads['basedir'] . '/' . sanitize_file_name( $subfolder );
 
 		if ( ! file_exists( $dir_path ) ) {
 			if ( ! wp_mkdir_p( $dir_path ) ) {
